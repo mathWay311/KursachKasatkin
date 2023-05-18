@@ -18,7 +18,7 @@ class AuthFrame(BaseFrame):
         self.field_password = tk.CTkEntry(self)
         self.field_password.pack()
 
-        self.button = tk.CTkButton(self, text="Войти", command = lambda : controller.switch_to_frame("AUTH","PILOT"))
+        self.button = tk.CTkButton(self, text="Войти", command = lambda : controller.switch_to_frame("AuthFrame","PilotFrame"))
         self.button.pack(pady = 10)
 
 
