@@ -1,21 +1,43 @@
+import copy
+
 import customtkinter as tk
 from frames.auth_frame import AuthFrame
-from frames.test_frame import FrameTest
+from frames.pilot_frame import PilotFrame
 
 class WinManager():
     def __init__(self, root):
-        self.frames = {"AUTH": AuthFrame(root, self),
-                       "WIN2": FrameTest(root, self)
+        self.frame_names = {"AUTH": "AuthFrame",
+                       "PILOT": "PilotFrame"
                        }
-        for frame in self.frames.values():
-            frame.create_widgets(self)
+
+        self.showed_frame = ""
+
+        self.title_dict = {
+            "AUTH": "G7 Airlines - Авторизация",
+            "PILOT": "Окно пилота"
+        }
+
+        self.showed_frame = AuthFrame(root, self)
+        self.showed_frame.create_widgets(self)
+
+        self.root = root
 
     def switch_to_frame(self, frame_name_hide, frame_name_show):
-        self.frames[frame_name_hide].pack_forget()
-        self.frames[frame_name_show].pack()
+        self.showed_frame.destroy()
+        frame_class = globals()[self.frame_names[frame_name_show]]
+        self.showed_frame = frame_class(root,self)
+        self.showed_frame.create_widgets(self)
+        self.change_title(self.title_dict[frame_name_show])
+
+    def change_title(self, title):
+        self.root.title(title)
 
 
 if __name__ == '__main__':
     root = tk.CTk()
+    root.title("G7 Airlines - Авторизация")
+    root.geometry("600x600")
+    root.resizable(1,1)
+
     winmg = WinManager(root)
     root.mainloop()
