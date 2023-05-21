@@ -18,11 +18,18 @@ class Table:
                 return args
         return False
 
+    def get_all(self):
+        file = open(self.path, "r")
+        return file.readlines()
+
 
 #   <--------Tables Declaration--------->
 
 users_table = Table("users")
 users_table.column_config = ["Name", "Password", "Role"]
+
+directions_table = Table("directions")
+directions_table.column_config = ["ID", "From", "To"]
 
 #   <--------Tables Declaration--------->
 
@@ -40,7 +47,7 @@ class Response:
 
 class DB:
     def __init__(self):
-        self.tables = {"users": users_table}
+        self.tables = {"users": users_table, "directions": directions_table}
 
     def is_record_present(self, table_name, column_name, record):
         result = self.tables[table_name].search(column_name, record)
@@ -66,3 +73,6 @@ class DB:
                 return Response(404)
         else:
             return Response(403)
+
+    def get_all_from(self, table_name):
+        return self.tables[table_name].get_all()
