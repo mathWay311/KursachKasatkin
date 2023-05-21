@@ -3,6 +3,8 @@ from frame import BaseFrame
 from PIL import Image
 
 BUTTON_RELX = 0.33
+BUTTON_WIDTH = 200
+BUTTON_HEIGHT = 50
 
 class AdminFrame(BaseFrame):
     def create_widgets(self, controller):
@@ -31,17 +33,20 @@ class AdminFrame(BaseFrame):
         self.left_select_panel = tk.CTkFrame(self, width = 300, height = 400)
         self.left_select_panel.place(rely=0.2, relx=0)
 
-        self.button_flights = tk.CTkButton(self.left_select_panel, text="Рейсы", fg_color="#5A97C0")
-        self.button_flights.place(rely=0.2, relx = BUTTON_RELX)
+        self.button_flights = tk.CTkButton(self.left_select_panel, text="Рейсы", fg_color="#5A97C0", font=("Roboto", 20) , corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF")
+        self.button_flights.pack()
 
-        self.button_directions = tk.CTkButton(self.left_select_panel, text="Направления", fg_color="#5A97C0")
-        self.button_directions.place(rely=0.4, relx=BUTTON_RELX)
+        self.button_directions = tk.CTkButton(self.left_select_panel, text="Направления", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF")
+        self.button_directions.pack()
 
-        self.button_planes = tk.CTkButton(self.left_select_panel, text="ВС", fg_color="#5A97C0")
-        self.button_planes.place(rely=0.6, relx=BUTTON_RELX)
+        self.button_planes = tk.CTkButton(self.left_select_panel, text="ВС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF")
+        self.button_planes.pack()
 
-        self.button_planes = tk.CTkButton(self.left_select_panel, text="ВС", fg_color="#5A97C0")
-        self.button_planes.place(rely=0.6, relx=BUTTON_RELX)
+        self.button_crew = tk.CTkButton(self.left_select_panel, text="ЛС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF")
+        self.button_crew.pack()
+
+        self.button_workers = tk.CTkButton(self.left_select_panel, text="Сотрудники", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF")
+        self.button_workers.pack()
 
         #   <--------SELPANEL---------->
 
