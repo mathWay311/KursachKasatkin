@@ -8,6 +8,10 @@ import content_gen
 from frames.scrollable_Frame import ScrollableFrame
 from frames.utility.add_frames import AddDirectionFrame
 
+from frames.utility.plane import *
+
+from frames.utility.detail_frames import *
+
 from tkinter import messagebox
 import customtkinter as tk
 
@@ -105,34 +109,45 @@ class WinController():
         _from = self.temporary_window_frame.entry_from.get()
         _to = self.temporary_window_frame.entry_to.get()
         self.db.add_record("directions", _from + ";" + _to)
+        self.refresh()
 
 
 
     def open_add_record_window(self):
-        if self.current_content == "Directions":
+        if self.current_content == "directions":
             self.temporary_window = tk.CTkToplevel(self.root)
             self.temporary_window.geometry("500x500")
             self.temporary_window_frame = AddDirectionFrame(self.temporary_window, self)
             self.temporary_window_frame.create_widgets(self)
 
+    def open_plane_details(self, id, plane_info):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = PlaneDetail(id,plane_info)
+        self.temporary_window_frame.create_widgets(self.temporary_window, self)
 
+    def place_plane_on_repair(self, id):
 
-
+        malfunction_text = self.temporary_window_frame.malfunction_entry_field.get("1.0", tk.END)
+        self.db.alter("planes", id, "Malfunction", malfunction_text)
+        self.db.alter("planes", id, "IsRepaired", 1)
 
     def populate_panel_with_content(self, content_name):
-        if content_name == "Directions":
-            self.current_content = "Directions"
-            lines = self.db.get_all_from("directions")
+        self.current_content = content_name
+        lines = self.db.get_all_from(content_name)
 
-            self.showed_frame.content_panel.destroy()
-            self.showed_frame.content_panel = ScrollableFrame(self.showed_frame)
-            scrollbar = tk.CTkScrollbar
+        self.showed_frame.content_panel.destroy()
+        self.showed_frame.content_panel = ScrollableFrame(self.showed_frame)
+        scrollbar = tk.CTkScrollbar
 
-            for i in range(len(lines)):
-                line = lines[i].split(";")
+        for i in range(len(lines)):
+            line = lines[i].split(";")
+            if content_name == "directions":
                 dir = Direction(line, self, self.showed_frame.content_panel.scrollable_frame, line[0])
-
-            self.showed_frame.content_panel.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
+            if content_name == "planes":
+                plane_info = PlaneInfo(line)
+                plane = Plane(plane_info, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+        self.showed_frame.content_panel.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
 
 
 

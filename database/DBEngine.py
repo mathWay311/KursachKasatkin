@@ -51,19 +51,37 @@ class Table:
         del_line = self.search_line("ID", id).strip()
         file = open(self.path, "w")
         for line in lines:
-            print(line, del_line)
             if line.strip("\n") != del_line:
                 file.write(line)
         file.close()
-        print("DEBUG: DELETE OF", id, "COMPLETE")
 
     def add_record(self,record):
         print(record)
         self.id_counter_refresh()
         file = open(self.path, "a")
         write_string = str(self.id_counter + 1) + ";" + record + "\n"
-        print(write_string)
         file.write(write_string)
+
+    def alter_record(self, id, column, text):
+        lines = self.get_all()
+        file = open(self.path, "w")
+        for line in lines:
+            line = line.strip()
+            args = line.split(";")
+            if args[0] == id:
+                args[self.column_config.index(column)] = text
+            output = ""
+            print(args)
+            for arg in args:
+                output+=str(arg) + ";"
+
+            output += "\n"
+            print(output)
+            file.write(output)
+
+        file.close()
+
+
 
 
 #   <--------Tables Declaration--------->
@@ -73,6 +91,9 @@ users_table.column_config = ["Name", "Password", "Role"]
 
 directions_table = Table("directions")
 directions_table.column_config = ["ID", "From", "To"]
+
+planes_table = Table("planes")
+planes_table.column_config = ["ID", "Brand", "Model", "BoardNum", "IsOccupied", "IsRepaired", "Malfunction", "ImagePath"]
 
 #   <--------Tables Declaration--------->
 
@@ -90,7 +111,10 @@ class Response:
 
 class DB:
     def __init__(self):
-        self.tables = {"users": users_table, "directions": directions_table}
+        self.tables = {"users": users_table,
+                       "directions": directions_table,
+                       "planes": planes_table
+                       }
 
     def is_record_present(self, table_name, column_name, record):
         result = self.tables[table_name].search_list(column_name, record)
@@ -125,3 +149,6 @@ class DB:
 
     def add_record(self, table_name, record):
         self.tables[table_name].add_record(record)
+
+    def alter(self, table_name, id, column, text):
+        self.tables[table_name].alter_record(id,column,text)

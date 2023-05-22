@@ -38,10 +38,10 @@ class AdminFrame(BaseFrame):
         self.button_flights = tk.CTkButton(self.upper_select_panel, text="Рейсы", fg_color="#5A97C0", font=("Roboto", 20) , corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", border_width=1, border_color="#FFFFFF")
         self.button_flights.pack(side = tk.LEFT)
 
-        self.button_directions = tk.CTkButton(self.upper_select_panel, text="Направления", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", command = lambda : controller.populate_panel_with_content("Directions"), border_color="#FFFFFF", border_width=1)
+        self.button_directions = tk.CTkButton(self.upper_select_panel, text="Направления", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", command = lambda : controller.populate_panel_with_content("directions"), border_color="#FFFFFF", border_width=1)
         self.button_directions.pack(side = tk.LEFT)
 
-        self.button_planes = tk.CTkButton(self.upper_select_panel, text="ВС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", border_color="#FFFFFF", border_width=1)
+        self.button_planes = tk.CTkButton(self.upper_select_panel, text="ВС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF",  command = lambda : controller.populate_panel_with_content("planes"), border_color="#FFFFFF", border_width=1)
         self.button_planes.pack(side = tk.LEFT)
 
         self.button_crew = tk.CTkButton(self.upper_select_panel, text="ЛС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", border_color="#FFFFFF", border_width=1)
