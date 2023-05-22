@@ -95,6 +95,7 @@ class WinController():
             messagebox.showerror("Ошибка","Такого пользователя не существует, или пароль неверный")
 
     #       <--------AUTH---------->
+
     def refresh(self):
         self.populate_panel_with_content(self.current_content)
 
@@ -105,12 +106,12 @@ class WinController():
             self.db.delete_by_id(table, id)
             self.refresh()
 
+
     def add_direction(self, dir):
         _from = self.temporary_window_frame.entry_from.get()
         _to = self.temporary_window_frame.entry_to.get()
         self.db.add_record("directions", _from + ";" + _to)
         self.refresh()
-
 
 
     def open_add_record_window(self):
@@ -120,6 +121,7 @@ class WinController():
             self.temporary_window_frame = AddDirectionFrame(self.temporary_window, self)
             self.temporary_window_frame.create_widgets(self)
 
+    #       <--------PLANES---------->
     def open_plane_details(self, id, plane_info):
         self.temporary_window = tk.CTkToplevel(self.root)
         self.temporary_window.geometry("1000x800")
@@ -127,10 +129,25 @@ class WinController():
         self.temporary_window_frame.create_widgets(self.temporary_window, self)
 
     def place_plane_on_repair(self, id):
-
         malfunction_text = self.temporary_window_frame.malfunction_entry_field.get("1.0", tk.END)
-        self.db.alter("planes", id, "Malfunction", malfunction_text)
-        self.db.alter("planes", id, "IsRepaired", 1)
+        self.db.alter("planes", str(id), "Malfunction", malfunction_text)
+        self.db.alter("planes", str(id), "IsRepaired", 1)
+        self.db.alter("planes", str(id), "IsOccupied", 1)
+        self.temporary_window.destroy()
+
+    def retrieve_plane_from_repair(self, id):
+        self.db.alter("planes", str(id), "Malfunction", "")
+        self.db.alter("planes", str(id), "IsRepaired", 0)
+        self.db.alter("planes", str(id), "IsOccupied", 0)
+        self.temporary_window.destroy()
+
+    def delete_plane_by_id(self,id):
+        result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
+        if result:
+            self.db.delete_by_id("planes", id)
+            self.temporary_window.destroy()
+            self.refresh()
+    #       <--------PLANES---------->
 
     def populate_panel_with_content(self, content_name):
         self.current_content = content_name

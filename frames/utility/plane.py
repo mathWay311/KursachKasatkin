@@ -22,7 +22,7 @@ class PlaneInfo():
         else:
             text+= "Статус: Простаивает\n"
 
-        if self.isOccupied and self.isRepaired:
+        if self.isRepaired:
             text += "Неисправен"
         else:
             text += "Исправен"

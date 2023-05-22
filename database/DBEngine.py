@@ -56,7 +56,6 @@ class Table:
         file.close()
 
     def add_record(self,record):
-        print(record)
         self.id_counter_refresh()
         file = open(self.path, "a")
         write_string = str(self.id_counter + 1) + ";" + record + "\n"
@@ -64,22 +63,35 @@ class Table:
 
     def alter_record(self, id, column, text):
         lines = self.get_all()
-        file = open(self.path, "w")
-        for line in lines:
-            line = line.strip()
-            args = line.split(";")
-            if args[0] == id:
-                args[self.column_config.index(column)] = text
-            output = ""
-            print(args)
-            for arg in args:
-                output+=str(arg) + ";"
 
-            output += "\n"
-            print(output)
-            file.write(output)
+        print(id)
+        isAltered = False
+        alter_line = self.search_line("ID", id)
+        if not alter_line:
+            print("SEARCH FAIL: NON-EXISTENT ID")
 
-        file.close()
+        else:
+            file = open(self.path, "w")
+            for line in lines:
+                if line != alter_line:
+                    print(line + "|" + alter_line)
+                    file.write(line)
+
+                else:
+                    args = alter_line.split(";")
+                    args.pop(-1)
+                    args[self.column_config.index(column)] = text
+                    outline = ""
+                    for arg in args:
+                        outline += str(arg) + ";"
+                    isAltered = True
+                    outline = outline.replace("\n", r"\\n")
+                    outline += "\n"
+                    file.write(outline)
+        if not isAltered:
+            print("DEBUG: ALTER FAIL (ID:", id, ",COLUMN:", column, "TEXT:",text)
+
+
 
 
 
