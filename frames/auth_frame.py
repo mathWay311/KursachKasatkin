@@ -2,6 +2,7 @@ import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
 
+
 class AuthFrame(BaseFrame):
     def create_widgets(self, controller):
         #   <--------BACKGROUND---------->

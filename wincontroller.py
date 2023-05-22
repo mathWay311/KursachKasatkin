@@ -5,31 +5,13 @@ from frames.admin_frame import AdminFrame
 from frames.utility.direction import Direction
 import database.DBEngine as db
 import content_gen
+from frames.scrollable_Frame import ScrollableFrame
+from frames.utility.add_frames import AddDirectionFrame
 
 from tkinter import messagebox
 import customtkinter as tk
 
 
-class ScrollableFrame(tk.CTkFrame):
-    def __init__(self, container, *args, **kwargs):
-        super().__init__(container, *args, **kwargs)
-        canvas = tk.CTkCanvas(self)
-        scrollbar = tk.CTkScrollbar(self, orientation="vertical", command=canvas.yview)
-        self.scrollable_frame = tk.CTkFrame(canvas)
-
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(
-                scrollregion=canvas.bbox("all")
-            )
-        )
-
-        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
 
 
 
@@ -81,6 +63,8 @@ class WinController():
         self.showed_frame = AdminFrame(root, self)
         self.showed_frame.create_widgets(self)
 
+        self.current_content = ""
+
         self.content_range = ContentDisplayRangeController(0)
         self.content_range.low = 0
         self.content_range.high = 5
@@ -107,25 +91,48 @@ class WinController():
             messagebox.showerror("Ошибка","Такого пользователя не существует, или пароль неверный")
 
     #       <--------AUTH---------->
+    def refresh(self):
+        self.populate_panel_with_content(self.current_content)
+
+
+    def delete_by_id(self, table, id):
+        result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
+        if result:
+            self.db.delete_by_id(table, id)
+            self.refresh()
+
+    def add_direction(self, dir):
+        _from = self.temporary_window_frame.entry_from.get()
+        _to = self.temporary_window_frame.entry_to.get()
+        self.db.add_record("directions", _from + ";" + _to)
+
+
+
+    def open_add_record_window(self):
+        if self.current_content == "Directions":
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("500x500")
+            self.temporary_window_frame = AddDirectionFrame(self.temporary_window, self)
+            self.temporary_window_frame.create_widgets(self)
+
+
+
+
 
     def populate_panel_with_content(self, content_name):
         if content_name == "Directions":
+            self.current_content = "Directions"
             lines = self.db.get_all_from("directions")
-            self.content_range.max = len(lines)
-
 
             self.showed_frame.content_panel.destroy()
-            self.showed_frame.content_panel = tk.CTkFrame(self.showed_frame.content_container)
+            self.showed_frame.content_panel = ScrollableFrame(self.showed_frame)
             scrollbar = tk.CTkScrollbar
-            self.showed_frame.content_panel.pack(side=tk.RIGHT, anchor=tk.SE, fill=tk.BOTH, expand = 1)
 
-            for i in range(12):
+            for i in range(len(lines)):
                 line = lines[i].split(";")
-                dir_rect = tk.CTkFrame(self.showed_frame.content_panel, height=80, width=1200, fg_color="#6FB1DE")
-                label = tk.CTkLabel(dir_rect, text = line[1] + " - " + line[2], font = ("Roboto", 26))
-                label.place(relx = 0.1, relheight = 1)
-                dir_rect.pack()
+                dir = Direction(line, self, self.showed_frame.content_panel.scrollable_frame, line[0])
 
+            self.showed_frame.content_panel.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
 
 
 

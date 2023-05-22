@@ -6,7 +6,7 @@ if __name__ == '__main__':
     root = tk.CTk()
     root.title("G7 Airlines - Авторизация")
     root.geometry("1600x900")
-    root.resizable(True,True)
+    root.resizable(False,False)
 
     winc = wincontroller.WinController(root)
     root.mainloop()
