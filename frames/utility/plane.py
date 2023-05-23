@@ -14,7 +14,6 @@ class PlaneInfo():
         self.imgPath = line[7]
     def print_status(self):
         text = ""
-        print(self.isOccupied)
         if self.isOccupied and self.isRepaired:
             text+= "Статус: Ремонтируется\n"
         elif self.isOccupied:
@@ -41,7 +40,7 @@ class Plane():
                                fg_color="#6FB1DE")
 
         plane_logo = tk.CTkLabel(dir_rect, image=plane_logo_img, text="")
-        label_brand = tk.CTkLabel(dir_rect, text=self.plane_info.brand + self.plane_info.model + self.plane_info.board_number, font=("Roboto", 26))
+        label_brand = tk.CTkLabel(dir_rect, text=self.plane_info.brand + " " + self.plane_info.model + " " + self.plane_info.board_number, font=("Roboto", 26))
 
 
         label_additional_info = tk.CTkLabel(dir_rect,

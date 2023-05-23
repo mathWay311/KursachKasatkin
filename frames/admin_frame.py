@@ -35,7 +35,7 @@ class AdminFrame(BaseFrame):
         #self.left_select_panel.place(rely=0.2, relx=0)
         self.upper_select_panel.pack(side = tk.TOP, fill = tk.X, anchor = tk.N)
 
-        self.button_flights = tk.CTkButton(self.upper_select_panel, text="Рейсы", fg_color="#5A97C0", font=("Roboto", 20) , corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", border_width=1, border_color="#FFFFFF")
+        self.button_flights = tk.CTkButton(self.upper_select_panel, text="Рейсы", fg_color="#5A97C0", font=("Roboto", 20) , corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF",command = lambda : controller.populate_panel_with_content("flights"), border_width=1, border_color="#FFFFFF")
         self.button_flights.pack(side = tk.LEFT)
 
         self.button_directions = tk.CTkButton(self.upper_select_panel, text="Направления", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", command = lambda : controller.populate_panel_with_content("directions"), border_color="#FFFFFF", border_width=1)
@@ -44,11 +44,18 @@ class AdminFrame(BaseFrame):
         self.button_planes = tk.CTkButton(self.upper_select_panel, text="ВС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF",  command = lambda : controller.populate_panel_with_content("planes"), border_color="#FFFFFF", border_width=1)
         self.button_planes.pack(side = tk.LEFT)
 
-        self.button_crew = tk.CTkButton(self.upper_select_panel, text="ЛС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", border_color="#FFFFFF", border_width=1)
+        self.button_crew = tk.CTkButton(self.upper_select_panel, text="ЛС", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", command = lambda : controller.populate_panel_with_content("crewmembers"), border_color="#FFFFFF", border_width=1)
         self.button_crew.pack(side = tk.LEFT)
 
-        self.button_workers = tk.CTkButton(self.upper_select_panel, text="Сотрудники", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF", border_color="#FFFFFF", border_width=1)
+        self.button_workers = tk.CTkButton(self.upper_select_panel, text="Сотрудники", fg_color="#5A97C0", font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH, height=BUTTON_HEIGHT, text_color = "#FFFFFF",command = lambda : controller.populate_panel_with_content("users"), border_color="#FFFFFF", border_width=1)
         self.button_workers.pack(side = tk.LEFT)
+
+        self.button_crews = tk.CTkButton(self.upper_select_panel, text="Экипажи", fg_color="#5A97C0",
+                                           font=("Roboto", 20), corner_radius=0, width=BUTTON_WIDTH,
+                                           height=BUTTON_HEIGHT, text_color="#FFFFFF",
+                                           command=lambda: controller.populate_panel_with_content("crews"),
+                                           border_color="#FFFFFF", border_width=1)
+        self.button_crews.pack(side=tk.LEFT)
 
         #   <--------SELPANEL---------->
 

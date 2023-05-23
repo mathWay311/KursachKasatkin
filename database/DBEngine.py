@@ -46,6 +46,15 @@ class Table:
         file.close()
         return lines
 
+    def get_all_where(self, column, text):
+        lines = self.get_all()
+        outlines = []
+        for line in lines:
+            args = line.split(";")
+            if args[self.column_config.index(column)] == text:
+                outlines.append(line)
+        return outlines
+
     def delete_by_id(self, id):
         lines = self.get_all()
         del_line = self.search_line("ID", id).strip()
@@ -58,13 +67,12 @@ class Table:
     def add_record(self,record):
         self.id_counter_refresh()
         file = open(self.path, "a")
+        record = record.replace("\n", r"\\n")
         write_string = str(self.id_counter + 1) + ";" + record + "\n"
         file.write(write_string)
 
     def alter_record(self, id, column, text):
         lines = self.get_all()
-
-        print(id)
         isAltered = False
         alter_line = self.search_line("ID", id)
         if not alter_line:
@@ -74,7 +82,6 @@ class Table:
             file = open(self.path, "w")
             for line in lines:
                 if line != alter_line:
-                    print(line + "|" + alter_line)
                     file.write(line)
 
                 else:
@@ -99,7 +106,7 @@ class Table:
 #   <--------Tables Declaration--------->
 
 users_table = Table("users")
-users_table.column_config = ["Name", "Password", "Role"]
+users_table.column_config = ["ID", "Login", "Password", "Role", "FullName", "Info", "CrewmemberID"]
 
 directions_table = Table("directions")
 directions_table.column_config = ["ID", "From", "To"]
@@ -107,13 +114,22 @@ directions_table.column_config = ["ID", "From", "To"]
 planes_table = Table("planes")
 planes_table.column_config = ["ID", "Brand", "Model", "BoardNum", "IsOccupied", "IsRepaired", "Malfunction", "ImagePath"]
 
+crewmembers_table = Table("crewmembers")
+crewmembers_table.column_config = ["ID", "Type" ,"FullName", "Info", "CrewID", "IsOccupied", "isRetired", "FlightID" ,"ImagePath", "FliesType"]
+
+flights_table = Table("flights")
+flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
+
+crews_table = Table("crews")
+crews_table.column_config = ["ID", "Name", "Pilot1ID" ,"Pilot2ID", "Stuard1ID", "Stuard2ID", "Stuard3ID", "Stuard4ID", "Stuard5ID", "Stuard6ID", "Stuard7ID", "isOccupied"]
 #   <--------Tables Declaration--------->
 
 class Response:
     frame_codes = {101: "AdminFrame", 400: ""}
-    def __init__(self, code):
+    def __init__(self, code, full_name = ""):
         self.code = code
         self.fail = False
+        self.full_name = full_name
         if code >= 200:
             self.fail = True
 
@@ -125,7 +141,10 @@ class DB:
     def __init__(self):
         self.tables = {"users": users_table,
                        "directions": directions_table,
-                       "planes": planes_table
+                       "planes": planes_table,
+                       "crewmembers": crewmembers_table,
+                       "flights" : flights_table,
+                       "crews" : crews_table
                        }
 
     def is_record_present(self, table_name, column_name, record):
@@ -136,18 +155,18 @@ class DB:
             return False
 
     def is_login_available(self, login):
-        answer = self.is_record_present("users", "Name", login)
+        answer = self.is_record_present("users", "Login", login)
         if answer:
             return False
         else:
             return True
 
     def authenticate(self, login, password):
-        line = self.tables["users"].search_list("Name", login)
+        line = self.tables["users"].search_list("Login", login)
         if line:
             if line[1] == password:
                 if line[2] == "admin":
-                    return Response(101)
+                    return Response(101, line[3])
             else:
                 return Response(404)
         else:
@@ -155,6 +174,10 @@ class DB:
 
     def get_all_from(self, table_name):
         return self.tables[table_name].get_all()
+
+    # Получает все записи из таблицы table_name, где значение column == text
+    def get_all_where(self, table_name, column, text):
+        self.tables[table_name].get_all_where(column, text)
 
     def delete_by_id(self, table_name, id):
         self.tables[table_name].delete_by_id(id)
@@ -164,3 +187,9 @@ class DB:
 
     def alter(self, table_name, id, column, text):
         self.tables[table_name].alter_record(id,column,text)
+
+    def search_line(self, table_name, column, search_string):
+        return self.tables[table_name].search_line(column, search_string)
+
+    def search_list(self, table_name, column, search_string):
+        return self.tables[table_name].search_list(column, search_string)
