@@ -40,7 +40,7 @@ class WinController():
             "Пилот": "pilot", "Стюардесса": "stuard"
         }
 
-        self.showed_frame = AdminFrame(root, self)
+        self.showed_frame = AuthFrame(root, self)
         self.showed_frame.create_widgets(self)
 
         self.current_content = ""
@@ -148,6 +148,7 @@ class WinController():
         login = self.showed_frame.field_login.get()
         password = self.showed_frame.field_password.get()
         response = self.db.authenticate(login, password)
+        print(response.code)
         if not response.fail:
             self.switch_to_frame(response.frame())
             self.showed_frame.label_name.configure(text = response.full_name)

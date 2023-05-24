@@ -164,9 +164,9 @@ class DB:
     def authenticate(self, login, password):
         line = self.tables["users"].search_list("Login", login)
         if line:
-            if line[1] == password:
-                if line[2] == "admin":
-                    return Response(101, line[3])
+            if line[self.tables["users"].column_config.index("Password")] == password:
+                if line[self.tables["users"].column_config.index("Role")] == "admin":
+                    return Response(101, line[self.tables["users"].column_config.index("FullName")])
             else:
                 return Response(404)
         else:
