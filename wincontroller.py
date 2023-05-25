@@ -49,28 +49,51 @@ class WinController():
         self.current_content = ""
 
 
-    def switch_to_frame(self, frame_name_show):
+    def switch_to_frame(self, frame_name_show : str):
+        """
+        Переключает отображаемый фрейм по названию
+        Args:
+            frame_name_show :
+                Наименование фрейма для переключения
+        """
         self.showed_frame.destroy()
-        frame_class = globals()[frame_name_show]
-        self.showed_frame = frame_class(self.root,self)
-        self.showed_frame.create_widgets(self)
-        self.change_title(self.title_dict[frame_name_show])
+        if frame_name_show in self.title_dict.keys():
+            frame_class = globals()[frame_name_show]
+            self.showed_frame = frame_class(self.root,self)
+            self.showed_frame.create_widgets(self)
+            self.change_title(self.title_dict[frame_name_show])
 
-    def change_title(self, title):
+    def change_title(self, title : str):
         self.root.title(title)
 
     #   <--------GENERIC---------->
 
-    # Удаление предмета из базы с закрытием окна
-    def delete_item_by_id(self,table_name,id):
+    def delete_item_by_id(self, table_name : str, id : str):
+        """
+        Удалить предмет по ID
+        Args:
+            table_name:
+                Наименование таблицы в формате "table"
+            id:
+                Идентификатор предмета для удаления
+        """
         result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
         if result:
             self.db.delete_by_id(table_name, id)
             self.temporary_window.destroy()
             self.refresh()
 
+
     # Удаление предмета из базы без закрытия окна (нужно только для направлений)
     def delete_by_id(self, table, id):
+        """
+        Удалить предмет по ID
+        Args:
+            table_name:
+                Наименование таблицы в формате "table"
+            id:
+                Идентификатор предмета для удаления
+        """
         result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
         if result:
             self.db.delete_by_id(table, id)
@@ -82,6 +105,9 @@ class WinController():
 
     # Открыть окно добавления предмета (универсальный метод)
     def open_add_record_window(self):
+        """
+        Открыть новое окно для добавления нового обьекта в базу
+        """
         if self.current_content == "directions":
             self.temporary_window = tk.CTkToplevel(self.root)
             self.temporary_window.geometry("500x500")
@@ -105,6 +131,12 @@ class WinController():
 
     # Вывести контент на панель
     def populate_panel_with_content(self, content_name):
+        """
+        Заполнить поле для контента обьектами из базы
+        Args:
+            content_name:
+                Название контента для заполнения в формате "table", то есть то же имя, что и у файла таблицы БД
+        """
         self.current_content = content_name
         models = self.db.get_all_from(content_name)
         self.showed_frame.content_panel.destroy()
@@ -146,6 +178,9 @@ class WinController():
     #       <--------AUTH---------->
 
     def authframe_login_submit(self):
+        """
+        Подтверждение входа (по нажатию кнопки ВХОД)
+        """
         login = self.showed_frame.field_login.get()
         password = self.showed_frame.field_password.get()
         response = self.db.authenticate(login, password)
@@ -160,7 +195,10 @@ class WinController():
 
     #       <--------DIRECTIONS---------->
 
-    def add_direction(self, dir):
+    def add_direction(self):
+        """
+        Добавить направление
+        """
         _from = self.temporary_window_frame.entry_from.get()
         _to = self.temporary_window_frame.entry_to.get()
         self.db.add_record("directions", _from + ";" + _to)
