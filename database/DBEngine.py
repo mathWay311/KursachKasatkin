@@ -1,14 +1,22 @@
 import os
-
+from database.models.crew_model import CrewModel
+from database.models.user_model import UserModel
+from database.models.flight_model import FlightModel
+from database.models.direction_model import DirectionModel
+from database.models.plane_model import PlaneModel
+from database.models.crewmember_model import CrewmemberModel
 
 PATH = "database/tables/"
 
 class Table:
-    def __init__(self, name):
+    def __init__(self, name, model_name):
         self.name = name
         self.path = PATH + name + ".db"
         self.column_config = []
         self.id_counter = 0
+
+        self.model_name = model_name
+        self.model_class = globals()[model_name]
 
     def id_counter_refresh(self):
         file = open(self.path, "r")
@@ -40,11 +48,17 @@ class Table:
         return False
 
 
-    def get_all(self):
+    def get_all(self) -> list[PlaneModel]:
+        """
+        Получить всё нахуй
+        """
         file = open(self.path, "r")
         lines = file.readlines()
-        file.close()
-        return lines
+        models = []
+        for line in lines:
+            args = line.split(";")
+            models.append(self.model_class(args))
+        return models
 
     def get_all_where(self, column, text):
         lines = self.get_all()
@@ -105,23 +119,23 @@ class Table:
 
 #   <--------Tables Declaration--------->
 
-users_table = Table("users")
+users_table = Table("users", "UserModel")
 users_table.column_config = ["ID", "Login", "Password", "Role", "FullName", "Info", "CrewmemberID"]
 
-directions_table = Table("directions")
+directions_table = Table("directions", "DirectionModel")
 directions_table.column_config = ["ID", "From", "To"]
 
-planes_table = Table("planes")
+planes_table = Table("planes", "PlaneModel")
 planes_table.column_config = ["ID", "Brand", "Model", "BoardNum", "IsOccupied", "IsRepaired", "Malfunction", "ImagePath"]
 
-crewmembers_table = Table("crewmembers")
+crewmembers_table = Table("crewmembers", "CrewmemberModel")
 crewmembers_table.column_config = ["ID", "Type" ,"FullName", "Info", "CrewID", "IsOccupied", "isRetired", "FlightID" ,"ImagePath", "FliesType"]
 
-flights_table = Table("flights")
+flights_table = Table("flights", "FlightModel")
 flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
 
-crews_table = Table("crews")
-crews_table.column_config = ["ID", "Name", "Pilot1ID" ,"Pilot2ID", "Stuard1ID", "Stuard2ID", "Stuard3ID", "Stuard4ID", "Stuard5ID", "Stuard6ID", "Stuard7ID", "isOccupied"]
+crews_table = Table("crews", "CrewModel")
+crews_table.column_config = ["ID", "Name", "PilotString" ,"StuardString", "isOccupied"]
 #   <--------Tables Declaration--------->
 
 class Response:

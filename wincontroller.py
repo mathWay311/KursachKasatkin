@@ -16,6 +16,9 @@ from frames.utility.flight import *
 
 from frames.utility.detail_frames import *
 
+
+from database.models.crew_model import *
+
 from tkinter import messagebox
 import customtkinter as tk
 
@@ -103,39 +106,37 @@ class WinController():
     # Вывести контент на панель
     def populate_panel_with_content(self, content_name):
         self.current_content = content_name
-        lines = self.db.get_all_from(content_name)
+        models = self.db.get_all_from(content_name)
         self.showed_frame.content_panel.destroy()
         self.showed_frame.content_panel = ScrollableFrame(self.showed_frame)
         scrollbar = tk.CTkScrollbar
 
-        for i in range(len(lines)):
-            line = lines[i].split(";")
+        for model in models:
             if content_name == "directions":
-                dir = Direction(line, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+                dir = Direction(model, self, self.showed_frame.content_panel.scrollable_frame)
+
             if content_name == "planes":
-                plane_info = PlaneInfo(line)
-                plane = Plane(plane_info, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+                plane = Plane(model, self, self.showed_frame.content_panel.scrollable_frame)
+
             if content_name == "crewmembers":
-                crewmember_info = CrewmemberInfo(line)
-                crewmember = Crewmember(crewmember_info, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+                crewmember = Crewmember(model, self, self.showed_frame.content_panel.scrollable_frame)
             if content_name == "users":
-                user_info = UserInfo(line)
-                user = User(user_info, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+                user = User(model, self, self.showed_frame.content_panel.scrollable_frame)
+
             if content_name == "crews":
-                crew_info = CrewInfo(line)
-                crew = Crew(crew_info, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+                crew = Crew(model, self, self.showed_frame.content_panel.scrollable_frame)
+
             if content_name == "flights":
-                flight_info = FlightInfo(line)
-                flight_text = self.db.search_list("crews", "ID", str(flight_info.crewID))
-                flight_info.crewName = flight_text[1]
+                flight_text = self.db.search_list("crews", "ID", str(model.crewID))
+                model.crewName = flight_text[1]
 
-                plane_text = self.db.search_list("planes", "ID", str(flight_info.planeID))
-                flight_info.planeName = plane_text[1] + plane_text[2]
+                plane_text = self.db.search_list("planes", "ID", str(model.planeID))
+                model.planeName = plane_text[1] + plane_text[2]
 
-                dir_text = self.db.search_list("directions", "ID", str(flight_info.directionID))
-                flight_info.dirName = dir_text[1] + " - " + dir_text[2]
+                dir_text = self.db.search_list("directions", "ID", str(model.directionID))
+                model.dirName = dir_text[1] + " - " + dir_text[2]
 
-                fli = Flight(flight_info, self, self.showed_frame.content_panel.scrollable_frame, line[0])
+                fli = Flight(model, self, self.showed_frame.content_panel.scrollable_frame)
 
         self.showed_frame.content_panel.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
 
@@ -190,7 +191,6 @@ class WinController():
         self.db.alter("planes", str(id), "IsOccupied", 0)
         self.temporary_window.destroy()
         self.refresh()
-        ["ID", "Brand", "Model", "BoardNum", "IsOccupied", "IsRepaired", "Malfunction", "ImagePath"]
     def add_plane(self):
         _brand = self.temporary_window_frame.dropdown_brand.get()
         _model = self.temporary_window_frame.dropdown_type.get()
