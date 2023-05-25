@@ -1,7 +1,7 @@
 import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
-from database.models.crewmember_model import CrewmemberModel
+from database.models.models import CrewmemberModel
 
 class Crewmember():
     def __init__(self, crewmember_model : CrewmemberModel ,controller, parent_frame):
@@ -11,6 +11,9 @@ class Crewmember():
 
         dir_rect = tk.CTkFrame(parent_frame, height=200, width=1600,
                                fg_color="#6FB1DE")
+
+        if self.model.isOccupied:
+            dir_rect.configure(fg_color="#4C738F")
 
         crewmember_logo = tk.CTkLabel(dir_rect, image=crewmember_logo_img, text="")
         label_brand = tk.CTkLabel(dir_rect, text=self.model.full_name, font=("Roboto", 26))
@@ -25,7 +28,7 @@ class Crewmember():
                                   font=("Roboto", 14), justify=tk.LEFT)
 
         button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF",
-                              command=lambda : controller.open_crewmember_details(self.model.id, self.model))
+                              command=lambda : controller.open_crewmember_details(self.model))
 
 
 

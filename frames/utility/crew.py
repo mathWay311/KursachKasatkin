@@ -1,7 +1,7 @@
 import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
-from database.models.crew_model import CrewModel
+from database.models.models import CrewModel
 
 class Crew():
     def __init__(self, crew_model : CrewModel, controller, parent_frame):
@@ -20,7 +20,7 @@ class Crew():
                                   font=("Roboto", 14), justify=tk.LEFT)
 
         button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF",
-                              command=lambda : controller.open_crew_details(self.model.id, self.model))
+                              command=lambda : controller.open_crew_details(self.model))
 
 
         button.place(relheight=0.2, relx=0.9)

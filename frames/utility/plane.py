@@ -1,7 +1,7 @@
 import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
-from database.models.plane_model import PlaneModel
+from database.models.models import PlaneModel
 
 class Plane():
     def __init__(self, plane_model: PlaneModel ,controller, parent_frame):
@@ -12,6 +12,15 @@ class Plane():
         dir_rect = tk.CTkFrame(parent_frame, height=300, width=1600,
                                fg_color="#6FB1DE")
 
+        if self.model.isFlying:
+            dir_rect.configure(fg_color="#4C738F")
+        if self.model.isRepaired:
+            dir_rect.configure(fg_color="#AEA98E")
+        if self.model.isBinded:
+            dir_rect.configure(fg_color="#728B72")
+
+
+
         plane_logo = tk.CTkLabel(dir_rect, image=plane_logo_img, text="")
         label_brand = tk.CTkLabel(dir_rect, text=self.model.brand + " " + self.model.model + " " + self.model.board_number, font=("Roboto", 26))
 
@@ -21,7 +30,7 @@ class Plane():
                                   font=("Roboto", 14), justify=tk.LEFT)
 
         button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF",
-                              command=lambda : controller.open_plane_details(self.model.id, self.model))
+                              command=lambda : controller.open_plane_details(self.model))
 
 
 

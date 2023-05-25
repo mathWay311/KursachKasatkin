@@ -1,7 +1,7 @@
 import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
-from database.models.user_model import UserModel
+from database.models.models import *
 
 
 class User():
@@ -11,6 +11,8 @@ class User():
 
         dir_rect = tk.CTkFrame(parent_frame, height=80, width=1600,
                                fg_color="#6FB1DE")
+
+
 
         label_name = tk.CTkLabel(dir_rect, text=self.user_model.full_name, font=("Roboto", 26))
 
@@ -30,7 +32,7 @@ class User():
                                   text= text,
                                   font=("Roboto", 14), justify=tk.LEFT)
 
-        button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF", command= lambda : controller.open_users_details(self.user_model.id, self.user_model))
+        button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF", command= lambda : controller.open_users_details(self.user_model))
 
 
 

@@ -1,5 +1,6 @@
 import customtkinter as tk
 from frame import BaseFrame
+from tkinter import messagebox
 
 class AddDirectionFrame(BaseFrame):
     def create_widgets(self, controller):
@@ -15,7 +16,7 @@ class AddDirectionFrame(BaseFrame):
         self.entry_to = tk.CTkEntry(self)
         self.entry_to.pack()
 
-        self.button_submit = tk.CTkButton(self,text="Создать", command= lambda:controller.add_direction(lambda:self.entry_from.get()))
+        self.button_submit = tk.CTkButton(self,text="Создать", command= lambda:controller.add_direction())
         self.button_submit.pack(side = tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda : self.root.destroy())
@@ -152,3 +153,193 @@ class AddPlaneFrame(BaseFrame):
             self.dropdown_type.configure(values=["154Б", "154М", "134"])
         if choice == "Airbus":
             self.dropdown_type.configure(values=["A320", "A320neo", "A380"])
+
+
+class AddCrewFrame(BaseFrame):
+    def create_widgets(self, controller):
+        self.pilot_counter = 0
+
+        self.controller = controller
+
+        self.name_label = tk.CTkLabel(self, text="Наименование")
+        self.name_label.pack()
+
+        self.name_entry = tk.CTkEntry(self)
+        self.name_entry.pack()
+
+        self.list_of_pilots_label = tk.CTkLabel(self, text="Список пилотов на рейсе")
+        self.list_of_pilots_label.pack()
+
+        self.list_of_pilots = tk.CTkTextbox(self, state=tk.DISABLED, height=60)
+        self.list_of_pilots.pack(fill = tk.X)
+
+        self.dropdown_crewmembers = tk.CTkComboBox(self, state="readonly")
+        self.dropdown_crewmembers.pack()
+
+        self.button_add_pilot = tk.CTkButton(self, text="Добавить пилота", command=lambda: self.add_pilot())
+        self.button_add_pilot.pack()
+
+        available_crewmembers = controller.get_available_crewmembers()
+        list_crewmembers_names = []
+        for crewmb in available_crewmembers:
+            if crewmb.type == "pilot":
+                list_crewmembers_names.append(str(crewmb.id) + " " + crewmb.full_name)
+
+        self.dropdown_crewmembers.configure(values=list_crewmembers_names)
+        if len(list_crewmembers_names):
+            self.dropdown_crewmembers.set(list_crewmembers_names[0])
+        else:
+            self.dropdown_crewmembers.set("")
+
+        self.label_stuard = tk.CTkLabel(self, text="Стюард(-ессы)")
+        self.label_stuard.pack()
+
+        self.list_of_stuards = tk.CTkTextbox(self, state=tk.DISABLED, height=120)
+        self.list_of_stuards.pack(fill=tk.X)
+
+        self.dropdown_stuards = tk.CTkComboBox(self, state="readonly")
+        self.dropdown_stuards.pack()
+
+        self.button_add_stuard = tk.CTkButton(self, text="Добавить стюарда", command=lambda: self.add_steward())
+        self.button_add_stuard.pack()
+        list_stuard_names = []
+        for crewmb in available_crewmembers:
+            if crewmb.type == "stuard":
+                list_stuard_names.append(str(crewmb.id) + " " + crewmb.full_name)
+
+        self.dropdown_stuards.configure(values=list_stuard_names)
+        if len(list_stuard_names):
+            self.dropdown_stuards.set(list_stuard_names[0])
+        else:
+            self.dropdown_stuards.set("")
+
+        self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: self.add_crew())
+        self.button_submit.pack(side=tk.RIGHT)
+
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
+        self.button_cancel.pack(side=tk.LEFT)
+
+        self.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
+
+    def add_pilot(self):
+        if self.list_of_pilots.get("1.0", tk.END).find(self.dropdown_crewmembers.get()) != -1:
+            messagebox.showerror("Ошибка", "Такой пилот уже добавлен")
+        else:
+            self.list_of_pilots.configure(state=tk.NORMAL)
+            self.list_of_pilots.insert("0.0", self.dropdown_crewmembers.get() + "\n")
+            self.list_of_pilots.configure(state=tk.DISABLED)
+            self.pilot_counter += 1
+
+    def add_steward(self):
+        if self.list_of_stuards.get("1.0", tk.END).find(self.dropdown_stuards.get()) != -1:
+            messagebox.showerror("Ошибка", "Такой стюард уже добавлен")
+        else:
+            self.list_of_stuards.configure(state=tk.NORMAL)
+            self.list_of_stuards.insert("0.0", self.dropdown_stuards.get() + "\n")
+            self.list_of_stuards.configure(state=tk.DISABLED)
+
+    def add_crew(self):
+        if self.list_of_stuards.get("1.0", tk.END).strip() == "" and self.list_of_pilots.get("1.0", tk.END).strip() == "":
+            messagebox.showerror("Ошибка", "Недопустимо создание пустого экипажа, добавьте хотя бы одного пилота!")
+        elif self.list_of_stuards.get("1.0", tk.END).strip() == "":
+            ans = messagebox.askokcancel("Внимание", "Вы создаёте экипаж без стюардов, вы уверены?")
+            if ans:
+                self.controller.add_crew()
+        elif self.pilot_counter == 1:
+            ans = messagebox.askokcancel("Внимание", "Вы создаёте экипаж с одним пилотом, вы уверены?")
+            if ans:
+                self.controller.add_crew()
+        else:
+            self.controller.add_crew()
+
+
+class AddFlightFrame(BaseFrame):
+    def create_widgets(self, controller):
+        self.controller = controller
+
+        # --------------------------------------
+
+        self.plane_label = tk.CTkLabel(self, text="Самолёт")
+        self.plane_label.pack()
+
+        self.dropdown_planes = tk.CTkComboBox(self, state="readonly")
+
+        available_planes = controller.get_available_planes()
+        list_plane_names = []
+        for plane in available_planes:
+            list_plane_names.append(str(plane.id) + " " + plane.brand + " " + plane.model + " " + plane.board_number)
+
+        self.dropdown_planes.configure(values=list_plane_names)
+        if len(list_plane_names):
+            self.dropdown_planes.set(list_plane_names[0])
+        else:
+            self.dropdown_planes.set("")
+        self.dropdown_planes.pack()
+
+        # --------------------------------------
+
+        self.date_start_label = tk.CTkLabel(self, text="Дата начала")
+        self.date_start_label.pack()
+
+        self.date_start_entry = tk.CTkEntry(self)
+        self.date_start_entry.pack()
+
+        # --------------------------------------
+
+        self.date_end_label = tk.CTkLabel(self, text="Дата конца")
+        self.date_end_label.pack()
+
+        self.date_end_entry = tk.CTkEntry(self)
+        self.date_end_entry.pack()
+
+        # --------------------------------------
+
+        self.direction_label = tk.CTkLabel(self, text="Направление")
+        self.direction_label.pack()
+
+        self.dropdown_directions = tk.CTkComboBox(self, state="readonly")
+
+        available_directions = controller.get_available_directions()
+        list_directions = []
+        for dir in available_directions:
+            list_directions.append(str(dir.id) + " " + dir.from_ + " " + dir.to_)
+
+        self.dropdown_directions.configure(values=list_directions)
+        if len(list_directions):
+            self.dropdown_directions.set(list_directions[0])
+        else:
+            self.dropdown_directions.set("")
+        self.dropdown_directions.pack()
+
+        # --------------------------------------
+
+        self.crew_label = tk.CTkLabel(self, text="Экипаж")
+        self.crew_label.pack()
+
+        self.dropdown_crews = tk.CTkComboBox(self, state="readonly")
+
+        available_crews = controller.get_available_crews()
+        list_crews = []
+        for crew in available_crews:
+            list_crews.append(str(crew.id) + " " + crew.name)
+
+        self.dropdown_crews.configure(values=list_crews)
+        if len(list_crews):
+            self.dropdown_crews.set(list_crews[0])
+        else:
+            self.dropdown_crews.set("")
+        self.dropdown_crews.pack()
+
+        # --------------------------------------
+
+        self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: self.add_flight())
+        self.button_submit.pack(side=tk.RIGHT)
+
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
+        self.button_cancel.pack(side=tk.LEFT)
+
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
+
+    def add_flight(self):
+        # some checks
+        self.controller.add_flight()

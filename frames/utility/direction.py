@@ -1,6 +1,6 @@
 import customtkinter as tk
 from frame import BaseFrame
-from database.models.direction_model import DirectionModel
+from database.models.models import *
 
 class Direction():
     def __init__(self, dir_model : DirectionModel, controller, parent_frame):

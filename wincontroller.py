@@ -17,7 +17,7 @@ from frames.utility.flight import *
 from frames.utility.detail_frames import *
 
 
-from database.models.crew_model import *
+from database.models.models import *
 
 from tkinter import messagebox
 import customtkinter as tk
@@ -70,7 +70,8 @@ class WinController():
 
     def delete_item_by_id(self, table_name : str, id : str):
         """
-        Удалить предмет по ID
+        Удалить предмет по ID и закрыть окно
+
         Args:
             table_name:
                 Наименование таблицы в формате "table"
@@ -84,13 +85,13 @@ class WinController():
             self.refresh()
 
 
-    # Удаление предмета из базы без закрытия окна (нужно только для направлений)
     def delete_by_id(self, table, id):
         """
-        Удалить предмет по ID
+        Удалить предмет по ID без закрытия текущего окна (в случае если кнопка удалить не находится внутри временного окна)
+
         Args:
-            table_name:
-                Наименование таблицы в формате "table"
+            table:
+                Наименование таблицы в формате, например "users"
             id:
                 Идентификатор предмета для удаления
         """
@@ -99,11 +100,11 @@ class WinController():
             self.db.delete_by_id(table, id)
             self.refresh()
 
-    # Обновить страницу
+
     def refresh(self):
         self.populate_panel_with_content(self.current_content)
 
-    # Открыть окно добавления предмета (универсальный метод)
+
     def open_add_record_window(self):
         """
         Открыть новое окно для добавления нового обьекта в базу
@@ -128,11 +129,22 @@ class WinController():
             self.temporary_window.geometry("500x500")
             self.temporary_window_frame = AddPlaneFrame(self.temporary_window, self)
             self.temporary_window_frame.create_widgets(self)
+        if self.current_content == "crews":
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("500x500")
+            self.temporary_window_frame = AddCrewFrame(self.temporary_window, self)
+            self.temporary_window_frame.create_widgets(self)
+        if self.current_content == "flights":
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("500x500")
+            self.temporary_window_frame = AddFlightFrame(self.temporary_window, self)
+            self.temporary_window_frame.create_widgets(self)
 
-    # Вывести контент на панель
+
     def populate_panel_with_content(self, content_name):
         """
         Заполнить поле для контента обьектами из базы
+
         Args:
             content_name:
                 Название контента для заполнения в формате "table", то есть то же имя, что и у файла таблицы БД
@@ -184,7 +196,6 @@ class WinController():
         login = self.showed_frame.field_login.get()
         password = self.showed_frame.field_password.get()
         response = self.db.authenticate(login, password)
-        print(response.code)
         if not response.fail:
             self.switch_to_frame(response.frame())
             self.showed_frame.label_name.configure(text = response.full_name)
@@ -204,31 +215,37 @@ class WinController():
         self.db.add_record("directions", _from + ";" + _to)
         self.refresh()
 
+    def get_available_directions(self) -> list[DirectionModel]:
+        models = self.db.get_all_from("directions")
+        output = []
+        for model in models:
+            output.append(model)
+        return output
+
     #       <--------DIRECTIONS---------->
 
 
 
     #       <--------PLANES---------->
-    def open_plane_details(self, id, plane_info):
+    def open_plane_details(self, plane_model : PlaneModel):
         self.temporary_window = tk.CTkToplevel(self.root)
         self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = PlaneDetail(id,plane_info)
+        self.temporary_window_frame = PlaneDetail(plane_model)
         self.temporary_window_frame.create_widgets(self.temporary_window, self)
 
     def place_plane_on_repair(self, id):
         malfunction_text = self.temporary_window_frame.malfunction_entry_field.get("1.0", tk.END)
         self.db.alter("planes", str(id), "Malfunction", malfunction_text)
         self.db.alter("planes", str(id), "IsRepaired", 1)
-        self.db.alter("planes", str(id), "IsOccupied", 1)
         self.temporary_window.destroy()
         self.refresh()
 
     def retrieve_plane_from_repair(self, id):
         self.db.alter("planes", str(id), "Malfunction", "")
         self.db.alter("planes", str(id), "IsRepaired", 0)
-        self.db.alter("planes", str(id), "IsOccupied", 0)
         self.temporary_window.destroy()
         self.refresh()
+
     def add_plane(self):
         _brand = self.temporary_window_frame.dropdown_brand.get()
         _model = self.temporary_window_frame.dropdown_type.get()
@@ -238,16 +255,23 @@ class WinController():
                            _brand + ";" + _model + ";" + _boardnum + ";0;0;;" + _picpath + ";")
         self.refresh()
 
+    def get_available_planes(self) -> list[PlaneModel]:
+        models = self.db.get_all_from("planes")
+        output = []
+        for model in models:
+            if not model.isBinded:
+                output.append(model)
+        return output
     #       <--------PLANES---------->
 
 
 
     #       <--------CREWMEMBERS---------->
 
-    def open_crewmember_details(self, id, crewmember_info):
+    def open_crewmember_details(self, crewmember_model : CrewmemberModel):
         self.temporary_window = tk.CTkToplevel(self.root)
         self.temporary_window.geometry("1000x400")
-        self.temporary_window_frame = CrewmemberDetail(id, crewmember_info)
+        self.temporary_window_frame = CrewmemberDetail(crewmember_model)
         self.temporary_window_frame.create_widgets(self.temporary_window, self)
 
     def add_crewmember(self):
@@ -265,10 +289,10 @@ class WinController():
 
     #       <--------USERS---------->
 
-    def open_users_details(self, id, user_info):
+    def open_users_details(self, user_model : UserModel):
         self.temporary_window = tk.CTkToplevel(self.root)
         self.temporary_window.geometry("1000x200")
-        self.temporary_window_frame = UserDetail(id, user_info)
+        self.temporary_window_frame = UserDetail(user_model)
         self.temporary_window_frame.create_widgets(self.temporary_window, self)
 
     def add_user(self):
@@ -283,12 +307,71 @@ class WinController():
     #       <--------USERS---------->
 
     #       <--------CREWS---------->
-    def open_crew_details(self, id, crew_info):
+    def open_crew_details(self, crew_model : CrewModel):
         self.temporary_window = tk.CTkToplevel(self.root)
         self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = CrewDetail(id,crew_info)
+        self.temporary_window_frame = CrewDetail(crew_model)
         self.temporary_window_frame.create_widgets(self.temporary_window, self)
+
+    def get_available_crewmembers(self) -> list[CrewmemberModel]:
+        models = self.db.get_all_from("crewmembers")
+        output = []
+        for model in models:
+            if not model.idBindedToCrew:
+                output.append(model)
+        return output
+
+    def add_crew(self):
+        _name = self.temporary_window_frame.name_entry.get()
+        _pilots = self.temporary_window_frame.list_of_pilots.get("1.0", tk.END).strip().split("\n")
+        _stuards= self.temporary_window_frame.list_of_stuards.get("1.0", tk.END).strip().split("\n")
+        to_bind_ids = []
+        pilot_string = ""
+        for pilot in _pilots:
+            pilot_string += pilot + "|"
+            to_bind_ids.append(pilot.split(" ")[0])
+        stuard_string = ""
+
+        for stuard in _stuards:
+            if len(stuard.strip()) != 0:
+                stuard_string += stuard + "|"
+                to_bind_ids.append(stuard.split(" ")[0])
+        self.db.add_record("crews", _name + ";" + pilot_string + ";" + stuard_string + ";0;")
+
+        for id in to_bind_ids:
+            self.db.alter("crewmembers", str(id), "IsBindedToCrew", 1)
+        self.temporary_window.destroy()
+        self.refresh()
+
+    def get_available_crews(self) -> list[CrewModel]:
+        models = self.db.get_all_from("crews")
+        output = []
+        for model in models:
+            if not model.isOccupied:
+                output.append(model)
+        return output
     #       <--------CREWS---------->
+
+    #       <--------FLIGHTS---------->
+    def add_flight(self):
+        _plane = self.temporary_window_frame.dropdown_planes.get()
+        _datestart = self.temporary_window_frame.date_start_entry.get()
+        _dateend = self.temporary_window_frame.date_end_entry.get()
+        _direction = self.temporary_window_frame.dropdown_directions.get()
+        _crew = self.temporary_window_frame.dropdown_crews.get()
+        to_bind_plane = _plane.split(" ")[0]
+        to_bind_crew = _crew.split(" ")[0]
+        to_bind_direction = _direction.split(" ")[0]
+        # flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
+        self.db.add_record("flights", to_bind_plane + ";" + _datestart + ";" + _dateend + ";" + to_bind_direction + ";" + to_bind_crew + ";")
+
+        self.db.alter("planes", to_bind_plane, "IsBinded", 1)
+        self.db.alter("crews", to_bind_crew, "IsOccupied", 1)
+
+        self.temporary_window.destroy()
+        self.refresh()
+    #       <--------FLIGHTS---------->
+
 
     #   <--------FRAME SPECIFIC METHODS---------->
 
