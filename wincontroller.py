@@ -296,6 +296,26 @@ class WinController():
             if not model.isBinded:
                 output.append(model)
         return output
+
+    def edit_plane_window(self, direction_model):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = EditPlaneFrame(self.temporary_window, self, direction_model)
+        self.temporary_window_frame.create_widgets(self)
+#["ID", "Brand", "Model", "BoardNum", "IsFlying", "IsRepaired", "Malfunction", "ImagePath", "IsBinded"]
+    def edit_plane(self):
+        model = self.temporary_window_frame.model
+        _brand = self.temporary_window_frame.dropdown_brand.get()
+        _model = self.temporary_window_frame.dropdown_type.get()
+        _board_num = self.temporary_window_frame.entry_boardnum.get()
+        _image_path = self.temporary_window_frame.entry_picpath.get()
+        self.db.alter("planes", model.id, "Brand", _brand)
+        self.db.alter("planes", model.id, "Model", _model)
+        self.db.alter("planes", model.id, "BoardNum", _board_num)
+        self.db.alter("planes", model.id, "ImagePath", _image_path)
+        self.temporary_window.destroy()
+        self.refresh()
+
     #       <--------PLANES---------->
 
 
@@ -318,12 +338,35 @@ class WinController():
         id = self.db.add_record("crewmembers",
                            _type + ";" + _full_name + ";" + _info + ";-1;0;0;-1;" + _picpath + ";" + _fly_type + ";0;0;")
 
-
-
         _login = self.temporary_window_frame.entry_login.get()
         _password = self.temporary_window_frame.entry_password.get()
         self.db.add_user(UserModel([-1, _login, _password, "pilot", _full_name, _info, id]))
 
+        self.refresh()
+
+    def edit_crewmember_window(self, crewmb_model : CrewmemberModel):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = EditCrewmemberFrame(self.temporary_window, self, crewmb_model)
+        self.temporary_window_frame.create_widgets(self)
+
+
+    def edit_crewmember(self):
+        model = self.temporary_window_frame.model
+        _type = self.temporary_window_frame.dropdown_types.get()
+        _type = self.types_dict[_type]
+        _full_name = self.temporary_window_frame.entry_full_name.get()
+        _info = self.temporary_window_frame.info_entry_field.get("1.0", tk.END)
+        _imgPath = self.temporary_window_frame.entry_picpath.get()
+        _fliesType = self.temporary_window_frame.entry_flytype.get()
+
+        self.db.alter("crewmembers", model.id, "Type", _type)
+        self.db.alter("crewmembers", model.id, "FullName", _full_name)
+        self.db.alter("crewmembers", model.id, "Info", _info)
+        self.db.alter("crewmembers", model.id, "ImagePath", _imgPath)
+        self.db.alter("crewmembers", model.id, "FliesType", _fliesType)
+
+        self.temporary_window.destroy()
         self.refresh()
 
     #       <--------CREWMEMBERS---------->
@@ -354,7 +397,7 @@ class WinController():
 
     def edit_user(self):
         model = self.temporary_window_frame.model
-        _login = self.temporary_window_frame.entry_login.get()
+        _login = self.temporary_window_frame.entry_login2.get()
         _password = self.temporary_window_frame.entry_password.get()
         role_text = self.temporary_window_frame.dropdown_roles.get()
         _role = self.roles_dict[role_text]

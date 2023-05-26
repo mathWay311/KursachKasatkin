@@ -32,9 +32,12 @@ class Crewmember():
         button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF",
                               command=lambda : controller.open_crewmember_details(self.model))
 
+        button_edit = tk.CTkButton(dir_rect, text="Редактировать", font=("Roboto", 16), text_color="#FFFFFF", fg_color="#FFD37C",
+                              command=lambda: controller.edit_crewmember_window(self.model))
 
 
         crewmember_logo.place(x=0, relheight=1)
+        button_edit.place(relheight = 0.2, relx = 0.8)
         button.place(relheight=0.2, relx=0.9)
         label_brand.place(relheight=0.33, x=350)
         label_additional_info.place(x=350, rely = 0.4)

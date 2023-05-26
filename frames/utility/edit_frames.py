@@ -27,12 +27,13 @@ class EditDirectionFrame(BaseFrame):
         self.entry_to.insert(0, self.model.to_)
         self.entry_to.pack()
 
-        self.button_submit = tk.CTkButton(self.root,text="Изменить", command= lambda:self.controller.edit_direction())
+        self.button_submit = tk.CTkButton(self.root,text="Изменить", command= lambda: self.controller.edit_direction())
         self.button_submit.pack(side = tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self.root, text="Отмена", fg_color="#FF7CA3", command=lambda : self.root.destroy())
         self.button_cancel.pack(side=tk.LEFT)
 
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
 class EditUserFrame(BaseFrame):
     def __init__(self, root, controller, dir_model:UserModel):
@@ -47,74 +48,170 @@ class EditUserFrame(BaseFrame):
         self.roles_dict =  {y: x for x, y in self.roles_dict_temp.items()}
 
     def create_widgets(self, controller):
-        self.label_full_name = tk.CTkLabel(self.root, text="ФИО")
+        self.label_full_name = tk.CTkLabel(self, text="ФИО")
         self.label_full_name.pack()
 
-        self.entry_full_name = tk.CTkEntry(self.root)
+        self.entry_full_name = tk.CTkEntry(self)
         self.entry_full_name.insert(0, self.model.full_name)
         self.entry_full_name.pack()
 
-        self.label_login = tk.CTkLabel(self.root, text="Логин")
+        print(self.entry_full_name.get())
+
+        self.label_login = tk.CTkLabel(self, text="Логин")
         self.label_login.pack()
 
-        self.entry_login = tk.CTkEntry(self.root)
-        self.entry_login.insert(0, self.model.login)
-        self.entry_login.pack()
+        self.entry_login2 = tk.CTkEntry(self)
+        self.entry_login2.insert(0, self.model.login)
+        self.entry_login2.pack()
 
-        self.label_password = tk.CTkLabel(self.root, text="Пароль")
+        self.label_password = tk.CTkLabel(self, text="Пароль")
         self.label_password.pack()
 
-        self.entry_password = tk.CTkEntry(self.root)
+        self.entry_password = tk.CTkEntry(self)
         self.entry_password.insert(0, self.model.password)
         self.entry_password.pack()
 
         self.label_role = tk.CTkLabel(self, text="Роль")
         self.label_role.pack()
 
-        self.dropdown_roles = tk.CTkOptionMenu(self.root)
+        self.dropdown_roles = tk.CTkOptionMenu(self)
         self.dropdown_roles.configure(
             values=["Администратор", "Менеджер Рейсов", "Менеджер ЛС", "Менеджер ВС", "Пилот/Стюардесса"])
         self.dropdown_roles.set(self.roles_dict[self.model.role])
         self.dropdown_roles.pack()
 
-        self.label_info = tk.CTkLabel(self.root, text="Доп. информация")
+        self.label_info = tk.CTkLabel(self, text="Доп. информация")
         self.label_info.pack()
 
-        self.info_entry_field = tk.CTkTextbox(self.root, width=500, height=100)
+        self.info_entry_field = tk.CTkTextbox(self, width=500, height=100)
         self.info_entry_field.insert("1.0", self.model.info)
         self.info_entry_field.pack()
 
-        self.button_submit = tk.CTkButton(self.root, text="Изменить", command=lambda: self.edit_prerequesite() )
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.controller.edit_user() )
         self.button_submit.pack(side=tk.RIGHT)
 
-        self.button_cancel = tk.CTkButton(self.root, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
         self.button_cancel.pack(side=tk.LEFT)
 
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
+
     def edit_prerequesite(self):
-        ans, ans2 = True, True
-        flag_selfedit = False
-        flag_adminedit = False
-        if str(self.controller.id) == str(self.model.id):
-            flag_selfedit = True
-            ans = messagebox.askokcancel("Внимание", "Вы редактируете свой аккаунт. Вам потребуется совершить повторную авторизацию")
-        if str(self.model.role == "admin"):
-            flag_adminedit = True
-            ans2 = messagebox.askokcancel("Внимание",
-                                          "Вы редактируете аккаунт администратора. Вы уверены?")
+        """
+        TODO: Ограничения для изменения юзеров крашило код, поэтому в пизду пока.
 
-        if not flag_adminedit and not flag_selfedit:
-            self.controller.edit_user()
+        Returns:
 
-        flag_reauth = False
-        if flag_selfedit:
-            flag_reauth = True
+        """
 
-        if ans and ans2:
-            self.controller.edit_user()
+class EditPlaneFrame(BaseFrame):
+    def __init__(self, root, controller, plane_model: PlaneModel):
+        super().__init__(root, controller)
+        self.model = plane_model
+        self.root = root
+        self.controller = controller
 
-        if flag_reauth:
-            self.controller.unauthorize()
+    def create_widgets(self, controller):
+        self.label_brand = tk.CTkLabel(self, text="Производитель")
+        self.label_brand.pack()
+
+        self.dropdown_brand = tk.CTkOptionMenu(self)
+        self.dropdown_brand.configure(values=["Boeing", "Ту", "Airbus"], command=self.optionmenu_callback)
+        self.dropdown_brand.set(self.model.brand)
+        self.dropdown_brand.pack()
+
+        self.label_type = tk.CTkLabel(self, text="Тип")
+        self.label_type.pack()
 
 
+        self.dropdown_type = tk.CTkOptionMenu(self)
+        self.optionmenu_callback(self.dropdown_brand.get())
+        self.dropdown_type.set(self.model.model)
+        self.dropdown_type.pack()
 
+        self.label_boardnum = tk.CTkLabel(self, text="Бортовой номер")
+        self.label_boardnum.pack()
 
+        self.entry_boardnum = tk.CTkEntry(self, placeholder_text="RA-")
+        self.entry_boardnum.insert(0, self.model.board_number)
+        self.entry_boardnum.pack()
+
+        self.label_pic = tk.CTkLabel(self, text="Путь до картинки в базе")
+        self.label_pic.pack()
+
+        self.entry_picpath = tk.CTkEntry(self)
+        self.entry_picpath.insert(0, self.model.imgPath)
+        self.entry_picpath.pack()
+
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: controller.edit_plane())
+        self.button_submit.pack(side=tk.RIGHT)
+
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
+        self.button_cancel.pack(side=tk.LEFT)
+
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
+
+    def optionmenu_callback(self, choice):
+        if choice == "Boeing":
+            self.dropdown_type.configure(values=["737MAX8", "737-800", "747"])
+        if choice == "Ту":
+            self.dropdown_type.configure(values=["154Б", "154М", "134"])
+        if choice == "Airbus":
+            self.dropdown_type.configure(values=["A320", "A320neo", "A380"])
+
+class EditCrewmemberFrame(BaseFrame):
+    def __init__(self, root, controller, crewmember_model: CrewmemberModel):
+        super().__init__(root, controller)
+        self.model = crewmember_model
+        self.root = root
+        self.controller = controller
+        self.types_dict_inv = {
+            "pilot": "Пилот", "stuard": "Стюардесса"
+        }
+
+    def create_widgets(self, controller):
+        self.label_types = tk.CTkLabel(self, text="Тип")
+        self.label_types.pack()
+
+        self.dropdown_types = tk.CTkOptionMenu(self)
+        self.dropdown_types.configure(
+            values=["Пилот", "Стюардесса"])
+        self.dropdown_types.set(self.types_dict_inv[self.model.type])
+        self.dropdown_types.pack()
+
+        self.label_full_name = tk.CTkLabel(self, text="ФИО")
+        self.label_full_name.pack()
+
+        self.entry_full_name = tk.CTkEntry(self)
+        self.entry_full_name.insert(0, self.model.full_name)
+        self.entry_full_name.pack()
+
+        self.label_info = tk.CTkLabel(self, text="Доп. информация")
+        self.label_info.pack()
+
+        self.info_entry_field = tk.CTkTextbox(self, width=500, height=100)
+        self.info_entry_field.insert("1.0", self.model.info)
+        self.info_entry_field.pack()
+
+        self.label_pic = tk.CTkLabel(self, text="Путь до картинки в базе")
+        self.label_pic.pack()
+
+        self.entry_picpath = tk.CTkEntry(self)
+        self.entry_picpath.insert(0, self.model.imagePath)
+        self.entry_picpath.pack()
+
+        self.label_flytype = tk.CTkLabel(self, text="Летает на типе")
+        self.label_flytype.pack()
+
+        self.entry_flytype = tk.CTkEntry(self)
+        self.entry_flytype.insert(0, self.model.fliesType)
+        self.entry_flytype.pack()
+
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: controller.edit_crewmember())
+        self.button_submit.pack(side=tk.RIGHT)
+
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
+        self.button_cancel.pack(side=tk.LEFT)
+
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
+
+        # TODO: Пререквизиты
