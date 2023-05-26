@@ -4,8 +4,9 @@ from database.models.models import *
 from frame import BaseFrame
 from PIL import Image
 from database.models import *
+from tkinter import messagebox
 
-PlaneModel
+
 
 def convert_from_plain(text):
     text = text.replace(r"\\n", "\n")
@@ -81,7 +82,7 @@ class UserDetail():
         self.user_model = user_model
 
     def create_widgets(self, root, controller):
-
+        self.controller = controller
         text = "Неизвестный тип. Свяжитесь с администратором, если это ошибка"
         if self.user_model.role == "admin":
             text = "Администратор"
@@ -107,8 +108,17 @@ class UserDetail():
                                             font=("Roboto", 14), justify=tk.LEFT)
         label_additional_info.place(x=30, y = 30)
 
-        self.button_delete = tk.CTkButton(root, text="Удалить", command=lambda: controller.delete_item_by_id("users", self.user_model.id), fg_color="#FF7CA3")
+        self.button_delete = tk.CTkButton(root, text="Удалить", command=lambda: self.delete_prerequesite(), fg_color="#FF7CA3")
         self.button_delete.place(x=640,y=30)
+
+    def delete_prerequesite(self):
+        if self.user_model.role == "admin":
+            ans = messagebox.askokcancel("Внимание!", "Вы удаляете администратора, вы уверены?")
+            if ans:
+                self.controller.delete_item_by_id("users", self.user_model.id)
+        else:
+            self.controller.delete_item_by_id("users", self.user_model.id)
+
 
 class CrewDetail():
     def __init__(self, crew_model : CrewModel):
@@ -116,3 +126,27 @@ class CrewDetail():
 
     def create_widgets(self, root, controller):
         pass
+
+class FlightDetail():
+    def __init__(self, flight_model : FlightModel):
+        self.flight_model = flight_model
+
+    def create_widgets(self, root, controller):
+        overall_plane_info = tk.CTkLabel(root, text=self.flight_model.print(), font=("Roboto", 15))
+        overall_plane_info.pack()
+
+        plane_name_info = tk.CTkLabel(root, text="Самолёт: " + self.flight_model.planeName, font=("Roboto", 15))
+        plane_name_info.pack()
+
+        deltatime = ""
+
+        time_info = tk.CTkLabel(root, text="Начало: " + self.flight_model.date_start + "\nКонец: " + self.flight_model.date_end + "\nВремя в пути: " + deltatime, font=("Roboto", 15))
+
+        self.button_edit = tk.CTkButton(root, text="Редактировать",
+                                          fg_color="#FF7CA3")
+        self.button_edit.place(x=640, y=30)
+
+        self.button_delete = tk.CTkButton(root, text="Удалить",
+                                          command=lambda: controller.delete_item_by_id("flights", self.flight_model.id),
+                                          fg_color="#FF7CA3")
+        self.button_delete.place(x=640, y=30)

@@ -80,6 +80,9 @@ class WinController():
         """
         result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
         if result:
+            if table_name == "flights":
+                self.release_from_flight_by_id(id)
+
             self.db.delete_by_id(table_name, id)
             self.temporary_window.destroy()
             self.refresh()
@@ -102,6 +105,7 @@ class WinController():
 
 
     def refresh(self):
+        self.db.refresh_current_flight_state()
         self.populate_panel_with_content(self.current_content)
 
 
@@ -196,6 +200,7 @@ class WinController():
         login = self.showed_frame.field_login.get()
         password = self.showed_frame.field_password.get()
         response = self.db.authenticate(login, password)
+        print(response.code)
         if not response.fail:
             self.switch_to_frame(response.frame())
             self.showed_frame.label_name.configure(text = response.full_name)
@@ -282,7 +287,7 @@ class WinController():
         _picpath = self.temporary_window_frame.entry_picpath.get()
         _fly_type = self.temporary_window_frame.entry_flytype.get()
         self.db.add_record("crewmembers",
-                           _type + ";" + _full_name + ";" + _info + ";-1;0;0;-1;" + _picpath + ";" + _fly_type + ";")
+                           _type + ";" + _full_name + ";" + _info + ";-1;0;0;-1;" + _picpath + ";" + _fly_type + ";0;0;")
         self.refresh()
 
     #       <--------CREWMEMBERS---------->
@@ -317,7 +322,7 @@ class WinController():
         models = self.db.get_all_from("crewmembers")
         output = []
         for model in models:
-            if not model.idBindedToCrew:
+            if not model.isBindedToCrew:
                 output.append(model)
         return output
 
@@ -365,11 +370,29 @@ class WinController():
         # flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
         self.db.add_record("flights", to_bind_plane + ";" + _datestart + ";" + _dateend + ";" + to_bind_direction + ";" + to_bind_crew + ";")
 
-        self.db.alter("planes", to_bind_plane, "IsBinded", 1)
-        self.db.alter("crews", to_bind_crew, "IsOccupied", 1)
+        self.occupy_for_flight(to_bind_plane, to_bind_crew)
 
         self.temporary_window.destroy()
         self.refresh()
+
+    def open_flight_details(self, flight_model : FlightModel):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = FlightDetail(flight_model)
+        self.temporary_window_frame.create_widgets(self.temporary_window, self)
+
+    def release_from_flight_by_id(self, id):
+        flight_model = self.db.search_model("flights", "ID", id)
+        self.db.alter("planes", str(flight_model.planeID), "IsBinded", 0)
+        self.db.alter("planes", str(flight_model.planeID), "IsFlying", 0)
+        self.db.alter("crews", str(flight_model.crewID), "IsOccupied", 0)
+        self.db.release_crew(flight_model.crewID)
+
+    def occupy_for_flight(self, to_bind_plane : str, to_bind_crew : str):
+        self.db.alter("planes", to_bind_plane, "IsBinded", 1)
+        self.db.alter("crews", to_bind_crew, "IsOccupied", 1)
+        self.db.occupy_crew(to_bind_crew)
+
     #       <--------FLIGHTS---------->
 
 

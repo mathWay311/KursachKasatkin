@@ -6,7 +6,7 @@ class FlightModel(Model):
     def __init__(self, line):
         super().__init__(line)
         self.id = int(line[0])
-        self.planeID= int(line[1])
+        self.planeID = int(line[1])
         self.date_start = line[2]
         self.date_end = line[3]
         self.directionID = int(line[4])
@@ -84,18 +84,21 @@ class CrewmemberModel(Model):
         self.FlightID = int(line[7])
         self.imagePath = line[8]
         self.fliesType = line[9]
-        self.idBindedToCrew = bool(int(line[10]))
+        self.isBindedToCrew = bool(int(line[10]))
+        self.isInFlight = bool(int(line[11]))
 
     def print_status(self):
-        text = ""
-        if self.isOccupied and self.isRetired:
-            text+= "Статус: В отпуске или недоступен\n"
-        elif self.isOccupied:
-            text += "Статус: В полёте\n"
-        elif self.idBindedToCrew:
-            text += "Статус: Назначен на экипаж, но сейчас не летит\n"
-        else:
-            text+= "Статус: Не назначен на экипаж\n"
+        text = "Статус: "
+        if self.isInFlight:
+            text += "Сейчас в полёте. "
+        if self.isOccupied:
+            text += "Принадлежит экипажу, назначенному на рейс. "
+        if self.isBindedToCrew:
+            text += "Назначен на экипаж. "
+        if self.isRetired:
+            text += "В отпуске. "
+        if not self.isRetired and not self.isOccupied and not self.isBindedToCrew and not self.isInFlight:
+            text += "Не назначен в экипаж"
 
         return text
 

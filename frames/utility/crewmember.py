@@ -14,6 +14,8 @@ class Crewmember():
 
         if self.model.isOccupied:
             dir_rect.configure(fg_color="#4C738F")
+        if not self.model.isRetired and not self.model.isOccupied and not self.model.isBindedToCrew and not self.model.isInFlight:
+            dir_rect.configure(fg_color="#96D3FF")
 
         crewmember_logo = tk.CTkLabel(dir_rect, image=crewmember_logo_img, text="")
         label_brand = tk.CTkLabel(dir_rect, text=self.model.full_name, font=("Roboto", 26))

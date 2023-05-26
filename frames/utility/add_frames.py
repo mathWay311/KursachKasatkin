@@ -1,3 +1,5 @@
+import datetime
+
 import customtkinter as tk
 from frame import BaseFrame
 from tkinter import messagebox
@@ -341,5 +343,72 @@ class AddFlightFrame(BaseFrame):
         self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
     def add_flight(self):
-        # some checks
-        self.controller.add_flight()
+        if self.__check_time():
+            self.controller.add_flight()
+        else:
+            messagebox.showerror("Рейс не создан", "Произошла ошибка при введении времени. Рейс не будет создан.")
+
+    def __check_time(self):
+        date_start_str = self.date_start_entry.get()
+        date_end_str = self.date_end_entry.get()
+        if len(date_start_str.split(" ")) == 2:
+            if len(date_start_str.split(" ")[0].split(".")) == 3:
+                if len(date_start_str.split(" ")[1].split(":")) == 2:
+                    if len(date_end_str.split(" ")) == 2:
+                        if len(date_end_str.split(" ")[0].split(".")) == 3:
+                            if len(date_end_str.split(" ")[1].split(":")) == 2:
+                                start_args_date = date_start_str.split(" ")[0].split(".")
+                                for i in range(len(start_args_date)):
+                                    try:
+                                        start_args_date[i] = int(start_args_date[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+                                start_args_time = date_start_str.split(" ")[1].split(":")
+                                for i in range(len(start_args_time)):
+                                    try:
+                                        start_args_time[i] = int(start_args_time[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+
+                                end_args_date = date_end_str.split(" ")[0].split(".")
+                                for i in range(len(end_args_date)):
+                                    try:
+                                        end_args_date[i] = int(end_args_date[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+
+                                end_args_time = date_end_str.split(" ")[1].split(":")
+                                for i in range(len(end_args_time)):
+                                    try:
+                                        end_args_time[i] = int(end_args_time[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+
+                                date_start = datetime.datetime(year=start_args_date[2], month=start_args_date[1], day=start_args_date[0], hour=start_args_time[0], minute=start_args_time[1])
+                                date_end = datetime.datetime(year=end_args_date[2], month=end_args_date[1],
+                                                               day=end_args_date[0], hour=end_args_time[0],
+                                                               minute=end_args_time[1])
+
+                                print(date_start)
+                                print(date_end)
+                                print(date_end - date_start)
+                                if ((date_start - datetime.datetime.now()).total_seconds() <= 0):
+                                    messagebox.showerror("Ошибка", "Дата начала раньше текущей даты или точно совпадает с текущим временем.")
+                                    return False
+                                if ((date_end - date_start).total_seconds() < 1):
+                                    messagebox.showerror("Ошибка", "Дата начала позже даты конца.")
+                                    return False
+                                if ((date_end - date_start).total_seconds() < 1800):
+                                    ans = messagebox.askokcancel("Внимание", "Рейс короче 30 минут, это нормально?")
+                                    if ans:
+                                        return True
+                                return True
+        return False

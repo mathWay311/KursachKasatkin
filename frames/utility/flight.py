@@ -13,7 +13,7 @@ class Flight():
 
         label_info = tk.CTkLabel(dir_rect, text=self.model.print(), font=("Roboto", 14))
 
-        button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF")
+        button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF", command=lambda :controller.open_flight_details(self.model))
 
         button.place(relheight=1, relx=0.9)
         label_info.place(relheight=1, x=30)
