@@ -307,6 +307,15 @@ class DB:
             to_occupy = to_occupy.split(" ")[0]
             self.tables["crewmembers"].alter_record(to_occupy, "IsOccupied" , 0)
 
+    def release_bind(self, crew_id):
+        crew_model = self.tables["crews"].search_model("ID", crew_id)
+        occupy_string = crew_model.pilotstring + crew_model.stuardstring
+        occupy_list = occupy_string.split("|")
+        occupy_list.pop(-1)
+        for to_occupy in occupy_list:
+            to_occupy = to_occupy.split(" ")[0]
+            self.tables["crewmembers"].alter_record(to_occupy, "IsBindedToCrew", 0)
+
     def start_crew_fly(self, crew_id):
         crew_model = self.tables["crews"].search_model("ID", crew_id)
         occupy_string = crew_model.pilotstring + crew_model.stuardstring

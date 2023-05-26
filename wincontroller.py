@@ -82,6 +82,8 @@ class WinController():
         if result:
             if table_name == "flights":
                 self.release_from_flight_by_id(id)
+            if table_name == "crews":
+                self.db.release_bind(id)
 
             self.db.delete_by_id(table_name, id)
             self.temporary_window.destroy()
@@ -257,7 +259,7 @@ class WinController():
         _boardnum = self.temporary_window_frame.entry_boardnum.get()
         _picpath = self.temporary_window_frame.entry_picpath.get()
         self.db.add_record("planes",
-                           _brand + ";" + _model + ";" + _boardnum + ";0;0;;" + _picpath + ";")
+                           _brand + ";" + _model + ";" + _boardnum + ";0;0;;" + _picpath + ";0;")
         self.refresh()
 
     def get_available_planes(self) -> list[PlaneModel]:
