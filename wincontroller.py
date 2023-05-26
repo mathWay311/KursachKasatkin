@@ -14,6 +14,8 @@ from frames.utility.user import *
 from frames.utility.crew import *
 from frames.utility.flight import *
 
+from frames.utility.edit_frames import *
+
 from frames.utility.detail_frames import *
 
 
@@ -47,6 +49,9 @@ class WinController():
         self.showed_frame.create_widgets(self)
 
         self.current_content = ""
+
+        self.role = ""
+        self.id_user = ""
 
 
     def switch_to_frame(self, frame_name_show : str):
@@ -170,6 +175,7 @@ class WinController():
 
             if content_name == "crewmembers":
                 crewmember = Crewmember(model, self, self.showed_frame.content_panel.scrollable_frame)
+
             if content_name == "users":
                 user = User(model, self, self.showed_frame.content_panel.scrollable_frame)
 
@@ -206,8 +212,13 @@ class WinController():
         if not response.fail:
             self.switch_to_frame(response.frame())
             self.showed_frame.label_name.configure(text = response.full_name)
+            self.id = response.id
+            self.role = response.role
         else:
             messagebox.showerror("Ошибка","Такого пользователя не существует, или пароль неверный")
+
+    def unauthorize(self):
+        self.switch_to_frame("AuthFrame")
 
     #       <--------AUTH---------->
 
@@ -219,7 +230,7 @@ class WinController():
         """
         _from = self.temporary_window_frame.entry_from.get()
         _to = self.temporary_window_frame.entry_to.get()
-        self.db.add_record("directions", _from + ";" + _to)
+        self.db.add_record("directions", _from + ";" + _to + ";")
         self.refresh()
 
     def get_available_directions(self) -> list[DirectionModel]:
@@ -228,6 +239,21 @@ class WinController():
         for model in models:
             output.append(model)
         return output
+
+    def edit_direction_window(self, direction_model):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = EditDirectionFrame(self.temporary_window, self, direction_model)
+        self.temporary_window_frame.create_widgets(self)
+
+    def edit_direction(self):
+        model = self.temporary_window_frame.model
+        _from =  self.temporary_window_frame.entry_from.get()
+        _to = self.temporary_window_frame.entry_to.get()
+        self.db.alter("directions", model.id, "From", _from)
+        self.db.alter("directions", model.id, "To", _to)
+        self.temporary_window.destroy()
+        self.refresh()
 
     #       <--------DIRECTIONS---------->
 
@@ -311,6 +337,30 @@ class WinController():
         _info = self.temporary_window_frame.info_entry_field.get("1.0", tk.END)
         self.db.add_record("users", _login + ";" + _password + ";" + _role + ";" + _full_name + ";" + _info + ";" + "-1" + ";")
         self.refresh()
+
+    def edit_user_window(self, user_model : UserModel):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = EditUserFrame(self.temporary_window, self, user_model)
+        self.temporary_window_frame.create_widgets(self)
+
+    def edit_user(self):
+        model = self.temporary_window_frame.model
+        _login = self.temporary_window_frame.entry_login.get()
+        _password = self.temporary_window_frame.entry_password.get()
+        role_text = self.temporary_window_frame.dropdown_roles.get()
+        _role = self.roles_dict[role_text]
+        _full_name = self.temporary_window_frame.entry_full_name.get()
+        _info = self.temporary_window_frame.info_entry_field.get("1.0", tk.END)
+        self.db.alter("users", model.id, "Login", _login)
+        self.db.alter("users", model.id, "Password", _password)
+        self.db.alter("users", model.id, "Role", _role)
+        self.db.alter("users", model.id, "FullName", _full_name)
+        self.db.alter("users", model.id, "Info", _info)
+
+        self.temporary_window.destroy()
+        self.refresh()
+
     #       <--------USERS---------->
 
     #       <--------CREWS---------->

@@ -34,8 +34,10 @@ class User():
 
         button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF", command= lambda : controller.open_users_details(self.user_model))
 
+        edit_button = tk.CTkButton(dir_rect, text="Редактировать", font=("Roboto", 16), text_color="#FFFFFF", fg_color="#FFD37C",
+                              command=lambda: controller.edit_user_window(self.user_model))
 
-
+        edit_button.place(relheight = 1, relx = 0.8)
         button.place(relheight=1, relx=0.9)
         label_name.place(relheight=1, x=30)
         label_additional_info.place(relheight = 1,relx = 0.5)

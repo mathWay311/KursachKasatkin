@@ -206,10 +206,13 @@ crews_table.column_config = ["ID", "Name", "PilotString" ,"StuardString", "IsOcc
 class Response:
     frame_codes = {101: "AdminFrame", 400: ""}
 
-    def __init__(self, code, full_name = ""):
+    def __init__(self, code, full_name = "", id = "", role = ""):
         self.code = code
         self.fail = False
         self.full_name = full_name
+        self.id = id
+        self.role = role
+
         if code >= 200:
             self.fail = True
 
@@ -258,7 +261,7 @@ class DB:
         if line:
             if line[self.tables["users"].column_config.index("Password")] == password:
                 if line[self.tables["users"].column_config.index("Role")] == "admin":
-                    return Response(101, line[self.tables["users"].column_config.index("FullName")])
+                    return Response(101, line[self.tables["users"].column_config.index("FullName")], line[self.tables["users"].column_config.index("ID")], line[self.tables["users"].column_config.index("Role")] )
             else:
                 return Response(404)
         else:

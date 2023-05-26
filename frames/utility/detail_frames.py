@@ -246,9 +246,6 @@ class FlightDetail():
 
         time_info = tk.CTkLabel(root, text="Начало: " + self.flight_model.date_start + "\nКонец: " + self.flight_model.date_end + "\nВремя в пути: " + deltatime, font=("Roboto", 15))
 
-        self.button_edit = tk.CTkButton(root, text="Редактировать",
-                                          fg_color="#FF7CA3")
-        self.button_edit.place(x=640, y=30)
 
         self.button_delete = tk.CTkButton(root, text="Удалить",
                                           command=lambda: controller.delete_item_by_id("flights", self.flight_model.id),
