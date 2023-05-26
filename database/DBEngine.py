@@ -141,12 +141,13 @@ class Table:
                 file.write(line)
         file.close()
 
-    def add_record(self,record):
+    def add_record(self,record) -> int:
         self.id_counter_refresh()
         file = open(self.path, "a")
         record = record.replace("\n", r"\\n")
         write_string = str(self.id_counter + 1) + ";" + record + "\n"
         file.write(write_string)
+        return self.id_counter + 1
 
     def alter_record(self, id, column, text):
         lines = self.__get_all_lines()
@@ -276,8 +277,18 @@ class DB:
     def delete_by_id(self, table_name, id):
         self.tables[table_name].delete_by_id(id)
 
-    def add_record(self, table_name, record):
-        self.tables[table_name].add_record(record)
+    def add_record(self, table_name, record) -> int:
+        """
+        Добавляет запись в таблицу
+
+        Args:
+            table_name: Название таблица
+            record: Запись
+
+        Returns:
+            ID добавленной записи
+        """
+        return self.tables[table_name].add_record(record)
 
     def alter(self, table_name, id, column, text):
         self.tables[table_name].alter_record(id,column,text)
@@ -344,6 +355,15 @@ class DB:
     def end_plane_fly(self, plane_id):
         self.alter("planes", str(plane_id), "IsFlying", 0)
         self.alter("planes", str(plane_id), "IsBinded", 0)
+
+    def add_user(self, user_model: UserModel):
+        login = user_model.login
+        result = self.tables["users"].search_model("Login", login)
+        if result:
+            messagebox.showerror("Ошибка на стороне БД!", "Логин уже существует")
+        else:
+            self.tables["users"].add_record(user_model.login + ";" + user_model.password + ";" + "pilot" + ";" + user_model.full_name + ";" + user_model.info + ";" + str(user_model.id) + ";")
+
 
     def refresh_current_flight_state(self):
         """

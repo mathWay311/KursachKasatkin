@@ -91,17 +91,30 @@ class EditUserFrame(BaseFrame):
         self.button_cancel.pack(side=tk.LEFT)
 
     def edit_prerequesite(self):
+        ans, ans2 = True, True
+        flag_selfedit = False
+        flag_adminedit = False
         if str(self.controller.id) == str(self.model.id):
+            flag_selfedit = True
             ans = messagebox.askokcancel("Внимание", "Вы редактируете свой аккаунт. Вам потребуется совершить повторную авторизацию")
-            if ans:
-                if str(self.model.role == "admin"):
-                    ans2 = messagebox.askokcancel("Внимание",
-                                                 "Вы редактируете аккаунт администратора. Вы уверены?")
-                    if ans2:
-                        self.controller.edit_user()
-                        self.controller.unauthorize()
-                else:
-                    self.controller.edit_user()
-                    self.controller.unauthorize()
-        else:
+        if str(self.model.role == "admin"):
+            flag_adminedit = True
+            ans2 = messagebox.askokcancel("Внимание",
+                                          "Вы редактируете аккаунт администратора. Вы уверены?")
+
+        if not flag_adminedit and not flag_selfedit:
             self.controller.edit_user()
+
+        flag_reauth = False
+        if flag_selfedit:
+            flag_reauth = True
+
+        if ans and ans2:
+            self.controller.edit_user()
+
+        if flag_reauth:
+            self.controller.unauthorize()
+
+
+
+

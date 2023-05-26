@@ -28,6 +28,8 @@ class AddDirectionFrame(BaseFrame):
 
 class AddUserFrame(BaseFrame):
     def create_widgets(self, controller):
+        self.controller = controller
+
         self.label_full_name = tk.CTkLabel(self, text = "ФИО")
         self.label_full_name.pack()
 
@@ -62,13 +64,18 @@ class AddUserFrame(BaseFrame):
         self.info_entry_field.pack()
 
 
-        self.button_submit = tk.CTkButton(self,text="Создать", command= lambda:controller.add_user())
+        self.button_submit = tk.CTkButton(self,text="Создать", command= lambda: self.add_prerequisites())
         self.button_submit.pack(side = tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda : self.root.destroy())
         self.button_cancel.pack(side=tk.LEFT)
 
         self.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
+
+    def add_prerequisites(self):
+        if self.dropdown_roles.get() == "Пилот/Стюардесса":
+            messagebox.showwarning("Предупреждение!", "Создание пилота/стюардессы вне окна ЛС допустимо только в случае утраты пользовательских данных уже существующего члена ЛС.")
+        self.controller.add_user()
 
 class AddCrewMemberFrame(BaseFrame):
     def create_widgets(self, controller):
@@ -103,6 +110,18 @@ class AddCrewMemberFrame(BaseFrame):
 
         self.entry_flytype = tk.CTkEntry(self)
         self.entry_flytype.pack()
+
+        self.label_login= tk.CTkLabel(self, text="Логин для персонального аккаунта")
+        self.label_login.pack()
+
+        self.entry_login = tk.CTkEntry(self)
+        self.entry_login.pack()
+
+        self.label_password = tk.CTkLabel(self, text="Пароль для персонального аккаунта")
+        self.label_password.pack()
+
+        self.entry_password = tk.CTkEntry(self)
+        self.entry_password.pack()
 
         self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: controller.add_crewmember())
         self.button_submit.pack(side=tk.RIGHT)

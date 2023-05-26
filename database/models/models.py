@@ -1,5 +1,5 @@
 class Model:
-    def __init__(self, line : str):
+    def __init__(self, line : list):
         pass
 
 class FlightModel(Model):

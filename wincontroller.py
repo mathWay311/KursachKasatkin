@@ -120,6 +120,7 @@ class WinController():
         """
         Открыть новое окно для добавления нового обьекта в базу
         """
+
         if self.current_content == "directions":
             self.temporary_window = tk.CTkToplevel(self.root)
             self.temporary_window.geometry("500x500")
@@ -208,7 +209,7 @@ class WinController():
         login = self.showed_frame.field_login.get()
         password = self.showed_frame.field_password.get()
         response = self.db.authenticate(login, password)
-        print(response.code)
+
         if not response.fail:
             self.switch_to_frame(response.frame())
             self.showed_frame.label_name.configure(text = response.full_name)
@@ -314,8 +315,15 @@ class WinController():
         _info = self.temporary_window_frame.info_entry_field.get("1.0", tk.END)
         _picpath = self.temporary_window_frame.entry_picpath.get()
         _fly_type = self.temporary_window_frame.entry_flytype.get()
-        self.db.add_record("crewmembers",
+        id = self.db.add_record("crewmembers",
                            _type + ";" + _full_name + ";" + _info + ";-1;0;0;-1;" + _picpath + ";" + _fly_type + ";0;0;")
+
+
+
+        _login = self.temporary_window_frame.entry_login.get()
+        _password = self.temporary_window_frame.entry_password.get()
+        self.db.add_user(UserModel([-1, _login, _password, "pilot", _full_name, _info, id]))
+
         self.refresh()
 
     #       <--------CREWMEMBERS---------->
