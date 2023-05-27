@@ -2,6 +2,7 @@ import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
 from frames.scrollable_Frame import ScrollableFrame
+from tkinter import messagebox
 
 BUTTON_RELX = 0.33
 BUTTON_WIDTH = 200
@@ -24,8 +25,11 @@ class AdminFrame(BaseFrame):
         self.logolabel.place(x=30, relheight=1)
 
         self.label_name = tk.CTkLabel(self.upper_rect, text="Иванович Иван Иванов")
-        self.label_name.place(anchor = tk.NE, relx=0.86, relheight = 1)
+        self.label_name.place(anchor = tk.NE, relx=0.7, relheight = 1)
 
+        self.button_unauth = tk.CTkButton(self.upper_rect, text="Выйти", font=("Roboto", 16), text_color="#FFFFFF",
+                              command=lambda : self.unauth())
+        self.button_unauth.place(relx = 0.9, relheight = 1)
         #   <--------HEADER---------->
 
 
@@ -103,3 +107,7 @@ class AdminFrame(BaseFrame):
     def change_auth_info(self, name):
         self.label_name.configure(text = name)
 
+    def unauth(self):
+        ans = messagebox.askokcancel("Выход из аккаунта", "Вы выходите из аккаунта. Вы уверены?")
+        if ans:
+            self.controller.unauthorize()

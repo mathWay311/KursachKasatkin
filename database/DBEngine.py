@@ -205,7 +205,7 @@ crews_table.column_config = ["ID", "Name", "PilotString" ,"StuardString", "IsOcc
 #   <--------Tables Declaration--------->
 
 class Response:
-    frame_codes = {101: "AdminFrame", 400: ""}
+    frame_codes = {101: "AdminFrame", 102 : "FlightManagerFrame", 400: ""}
 
     def __init__(self, code, full_name = "", id = "", role = ""):
         self.code = code
@@ -263,6 +263,10 @@ class DB:
             if line[self.tables["users"].column_config.index("Password")] == password:
                 if line[self.tables["users"].column_config.index("Role")] == "admin":
                     return Response(101, line[self.tables["users"].column_config.index("FullName")], line[self.tables["users"].column_config.index("ID")], line[self.tables["users"].column_config.index("Role")] )
+                if line[self.tables["users"].column_config.index("Role")] == "flight_manager":
+                    return Response(102, line[self.tables["users"].column_config.index("FullName")],
+                                    line[self.tables["users"].column_config.index("ID")],
+                                    line[self.tables["users"].column_config.index("Role")])
             else:
                 return Response(404)
         else:

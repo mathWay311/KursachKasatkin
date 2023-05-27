@@ -2,6 +2,8 @@ from frames.auth_frame import AuthFrame
 from frames.pilot_frame import PilotFrame
 from frames.test_frame import TestFrame
 from frames.admin_frame import AdminFrame
+from frames.flight_manager_frame import FlightManagerFrame
+
 from frames.utility.direction import Direction
 import database.DBEngine as db
 import content_gen
@@ -35,6 +37,7 @@ class WinController():
             "AuthFrame": "G7 Airlines - Авторизация",
             "PilotFrame": "Окно пилота",
             "AdminFrame": "Администратор",
+            "FlightManagerFrame": "Менеджер Рейсов",
             "TestFrame": "Debug"
         }
 
@@ -83,6 +86,28 @@ class WinController():
             id:
                 Идентификатор предмета для удаления
         """
+        if table_name == "planes":
+            if not self.auth_check(["admin", "plane_manager"]):
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер ВС может удалить самолёт")
+                return
+        if table_name == "crews":
+            if not self.auth_check(["admin", "crew_manager"]):
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер ЛС может удалить экипаж")
+                return
+        if table_name == "crewmembers":
+            if not self.auth_check(["admin", "crew_manager"]):
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер ЛС может удалить члена ЛС")
+                return
+        if table_name == "users":
+            if not self.auth_check(["admin"]):
+                messagebox.showerror("Нет доступа", "Только администратор может удалить пользователя")
+                return
+        if table_name == "flights":
+            if not self.auth_check(["admin", "flight_manager"]):
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер рейсов может удалить рейс")
+                return
+
+
         result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
         if result:
             if table_name == "flights":
@@ -105,10 +130,14 @@ class WinController():
             id:
                 Идентификатор предмета для удаления
         """
-        result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
-        if result:
-            self.db.delete_by_id(table, id)
-            self.refresh()
+        if table == "directions":
+            if self.auth_check(["admin"]):
+                result = messagebox.askokcancel("Вы уверены?", "Удалённые данные будут потеряны безвозвратно")
+                if result:
+                    self.db.delete_by_id(table, id)
+                    self.refresh()
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор может удалять направления")
 
 
     def refresh(self):
@@ -122,35 +151,53 @@ class WinController():
         """
 
         if self.current_content == "directions":
-            self.temporary_window = tk.CTkToplevel(self.root)
-            self.temporary_window.geometry("500x500")
-            self.temporary_window_frame = AddDirectionFrame(self.temporary_window, self)
-            self.temporary_window_frame.create_widgets(self)
+            if self.auth_check(["admin"]):
+                self.temporary_window = tk.CTkToplevel(self.root)
+                self.temporary_window.geometry("500x500")
+                self.temporary_window_frame = AddDirectionFrame(self.temporary_window, self)
+                self.temporary_window_frame.create_widgets(self)
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор может добавлять направления")
         if self.current_content == "users":
-            self.temporary_window = tk.CTkToplevel(self.root)
-            self.temporary_window.geometry("500x500")
-            self.temporary_window_frame = AddUserFrame(self.temporary_window, self)
-            self.temporary_window_frame.create_widgets(self)
+            if self.auth_check(["admin"]):
+                self.temporary_window = tk.CTkToplevel(self.root)
+                self.temporary_window.geometry("500x500")
+                self.temporary_window_frame = AddUserFrame(self.temporary_window, self)
+                self.temporary_window_frame.create_widgets(self)
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор может добавлять пользователей")
         if self.current_content == "crewmembers":
-            self.temporary_window = tk.CTkToplevel(self.root)
-            self.temporary_window.geometry("500x500")
-            self.temporary_window_frame = AddCrewMemberFrame(self.temporary_window, self)
-            self.temporary_window_frame.create_widgets(self)
+            if self.auth_check(["admin", "crew_manager"]):
+                self.temporary_window = tk.CTkToplevel(self.root)
+                self.temporary_window.geometry("500x500")
+                self.temporary_window_frame = AddCrewMemberFrame(self.temporary_window, self)
+                self.temporary_window_frame.create_widgets(self)
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер ЛС может добавлять членов ЛС")
         if self.current_content == "planes":
-            self.temporary_window = tk.CTkToplevel(self.root)
-            self.temporary_window.geometry("500x500")
-            self.temporary_window_frame = AddPlaneFrame(self.temporary_window, self)
-            self.temporary_window_frame.create_widgets(self)
+            if self.auth_check(["admin", "plane_manager"]):
+                self.temporary_window = tk.CTkToplevel(self.root)
+                self.temporary_window.geometry("500x500")
+                self.temporary_window_frame = AddPlaneFrame(self.temporary_window, self)
+                self.temporary_window_frame.create_widgets(self)
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер ВС может добавлять самолёты")
         if self.current_content == "crews":
-            self.temporary_window = tk.CTkToplevel(self.root)
-            self.temporary_window.geometry("500x500")
-            self.temporary_window_frame = AddCrewFrame(self.temporary_window, self)
-            self.temporary_window_frame.create_widgets(self)
+            if self.auth_check(["admin", "crew_manager"]):
+                self.temporary_window = tk.CTkToplevel(self.root)
+                self.temporary_window.geometry("500x500")
+                self.temporary_window_frame = AddCrewFrame(self.temporary_window, self)
+                self.temporary_window_frame.create_widgets(self)
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер ЛС может добавлять экипажи")
         if self.current_content == "flights":
-            self.temporary_window = tk.CTkToplevel(self.root)
-            self.temporary_window.geometry("500x500")
-            self.temporary_window_frame = AddFlightFrame(self.temporary_window, self)
-            self.temporary_window_frame.create_widgets(self)
+            if self.auth_check(["admin", "flight_manager"]):
+                self.temporary_window = tk.CTkToplevel(self.root)
+                self.temporary_window.geometry("500x500")
+                self.temporary_window_frame = AddFlightFrame(self.temporary_window, self)
+                self.temporary_window_frame.create_widgets(self)
+            else:
+                messagebox.showerror("Нет доступа", "Только администратор или менеджер рейсов может добавлять рейсы")
 
 
     def populate_panel_with_content(self, content_name):
@@ -202,6 +249,21 @@ class WinController():
     #   <--------FRAME SPECIFIC METHODS---------->
     #       <--------AUTH---------->
 
+    def auth_check(self, availables : list[str]) -> bool:
+        """
+        Проверка аутентификации для того или иного прецедента. Вызывается перед прецедентом
+
+        Args:
+            availables: Список разрешённых ролей
+
+        Returns:
+
+        """
+        if self.role in availables:
+            return True
+        else:
+            return False
+
     def authframe_login_submit(self):
         """
         Подтверждение входа (по нажатию кнопки ВХОД)
@@ -219,6 +281,8 @@ class WinController():
             messagebox.showerror("Ошибка","Такого пользователя не существует, или пароль неверный")
 
     def unauthorize(self):
+        self.role = ""
+        self.id_user = ""
         self.switch_to_frame("AuthFrame")
 
     #       <--------AUTH---------->
