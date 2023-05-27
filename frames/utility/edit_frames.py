@@ -355,3 +355,166 @@ class EditCrewFrame(BaseFrame):
                 self.controller.edit_crew()
         else:
             self.controller.edit_crew()
+
+class EditFlightFrame(BaseFrame):
+    def __init__(self, root, controller, flight_model: FlightModel):
+        super().__init__(root, controller)
+        self.model = flight_model
+        self.root = root
+        self.controller = controller
+
+
+    def create_widgets(self, controller):
+        self.controller = controller
+
+        # --------------------------------------
+
+        self.plane_label = tk.CTkLabel(self, text="Самолёт")
+        self.plane_label.pack()
+
+        self.dropdown_planes = tk.CTkComboBox(self, state="readonly")
+
+        available_planes = controller.get_available_planes()
+        list_plane_names = []
+        for plane in available_planes:
+            list_plane_names.append(str(plane.id) + " " + plane.brand + " " + plane.model + " " + plane.board_number)
+
+        self.dropdown_planes.configure(values=list_plane_names)
+
+        self.dropdown_planes.set(str(self.model.planeID) + " " + self.model.planeName)
+        self.dropdown_planes.pack()
+
+        # --------------------------------------
+
+        self.date_start_label = tk.CTkLabel(self, text="Дата начала")
+        self.date_start_label.pack()
+
+        self.date_start_entry = tk.CTkEntry(self)
+        self.date_start_entry.insert(0, self.model.date_start)
+        self.date_start_entry.pack()
+
+        # --------------------------------------
+
+        self.date_end_label = tk.CTkLabel(self, text="Дата конца")
+        self.date_end_label.pack()
+
+        self.date_end_entry = tk.CTkEntry(self)
+        self.date_end_entry.insert(0, self.model.date_end)
+        self.date_end_entry.pack()
+
+        # --------------------------------------
+
+        self.direction_label = tk.CTkLabel(self, text="Направление")
+        self.direction_label.pack()
+
+        self.dropdown_directions = tk.CTkComboBox(self, state="readonly")
+
+        available_directions = controller.get_available_directions()
+        list_directions = []
+        for dir in available_directions:
+            list_directions.append(str(dir.id) + " " + dir.from_ + " " + dir.to_)
+
+        self.dropdown_directions.configure(values=list_directions)
+
+        self.dropdown_directions.set(str(self.model.directionID) + " " + self.model.dirName)
+        self.dropdown_directions.pack()
+
+        # --------------------------------------
+
+        self.crew_label = tk.CTkLabel(self, text="Экипаж")
+        self.crew_label.pack()
+
+        self.dropdown_crews = tk.CTkComboBox(self, state="readonly")
+
+        available_crews = controller.get_available_crews()
+        list_crews = []
+        for crew in available_crews:
+            list_crews.append(str(crew.id) + " " + crew.name)
+
+        self.dropdown_crews.configure(values=list_crews)
+        self.dropdown_crews.set(str(self.model.crewID)+ " " + self.model.crewName)
+        self.dropdown_crews.pack()
+
+        # --------------------------------------
+
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.edit_flight())
+        self.button_submit.pack(side=tk.RIGHT)
+
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
+        self.button_cancel.pack(side=tk.LEFT)
+
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
+
+    def edit_flight(self):
+        if self.__check_time():
+            self.controller.edit_flight()
+        else:
+            messagebox.showerror("Рейс не изменён", "Произошла ошибка при введении времени. Рейс не будет изменён.")
+
+    def __check_time(self):
+        date_start_str = self.date_start_entry.get()
+        date_end_str = self.date_end_entry.get()
+        if len(date_start_str.split(" ")) == 2:
+            if len(date_start_str.split(" ")[0].split(".")) == 3:
+                if len(date_start_str.split(" ")[1].split(":")) == 2:
+                    if len(date_end_str.split(" ")) == 2:
+                        if len(date_end_str.split(" ")[0].split(".")) == 3:
+                            if len(date_end_str.split(" ")[1].split(":")) == 2:
+                                start_args_date = date_start_str.split(" ")[0].split(".")
+                                for i in range(len(start_args_date)):
+                                    try:
+                                        start_args_date[i] = int(start_args_date[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+                                start_args_time = date_start_str.split(" ")[1].split(":")
+                                for i in range(len(start_args_time)):
+                                    try:
+                                        start_args_time[i] = int(start_args_time[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+
+                                end_args_date = date_end_str.split(" ")[0].split(".")
+                                for i in range(len(end_args_date)):
+                                    try:
+                                        end_args_date[i] = int(end_args_date[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+
+                                end_args_time = date_end_str.split(" ")[1].split(":")
+                                for i in range(len(end_args_time)):
+                                    try:
+                                        end_args_time[i] = int(end_args_time[i])
+                                    except:
+                                        messagebox.showerror("Ошибка",
+                                                             "Недопустимый формат времени!\n Проверьте на соответствие шаблону (DD.MM.YYYY HH:MM)\nПроверьте, что вводите цифры!")
+                                        return False
+
+                                date_start = datetime.datetime(year=start_args_date[2], month=start_args_date[1],
+                                                               day=start_args_date[0], hour=start_args_time[0],
+                                                               minute=start_args_time[1])
+                                date_end = datetime.datetime(year=end_args_date[2], month=end_args_date[1],
+                                                             day=end_args_date[0], hour=end_args_time[0],
+                                                             minute=end_args_time[1])
+
+                                print(date_start)
+                                print(date_end)
+                                print(date_end - date_start)
+                                if ((date_start - datetime.datetime.now()).total_seconds() <= 0):
+                                    messagebox.showerror("Ошибка",
+                                                         "Дата начала раньше текущей даты или точно совпадает с текущим временем.")
+                                    return False
+                                if ((date_end - date_start).total_seconds() < 1):
+                                    messagebox.showerror("Ошибка", "Дата начала позже даты конца.")
+                                    return False
+                                if ((date_end - date_start).total_seconds() < 1800):
+                                    ans = messagebox.askokcancel("Внимание", "Рейс короче 30 минут, это нормально?")
+                                    if ans:
+                                        return True
+                                return True
+        return False

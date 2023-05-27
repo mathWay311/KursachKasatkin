@@ -15,6 +15,10 @@ class Flight():
 
         button = tk.CTkButton(dir_rect, text="Подробно", font=("Roboto", 16), text_color="#FFFFFF", command=lambda :controller.open_flight_details(self.model))
 
+        edit_button = tk.CTkButton(dir_rect, text="Редактировать", font=("Roboto", 16), text_color="#FFFFFF",fg_color="#FFD37C",
+                              command=lambda: controller.edit_flight_window(self.model))
+
+        edit_button.place(relheight = 1, relx = 0.8)
         button.place(relheight=1, relx=0.9)
         label_info.place(relheight=1, x=30)
         dir_rect.pack(fill=tk.X, pady=1)

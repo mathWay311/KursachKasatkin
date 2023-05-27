@@ -515,7 +515,7 @@ class WinController():
         to_bind_plane = _plane.split(" ")[0]
         to_bind_crew = _crew.split(" ")[0]
         to_bind_direction = _direction.split(" ")[0]
-        # flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
+
         self.db.add_record("flights", to_bind_plane + ";" + _datestart + ";" + _dateend + ";" + to_bind_direction + ";" + to_bind_crew + ";")
 
         self.occupy_for_flight(to_bind_plane, to_bind_crew)
@@ -540,6 +540,36 @@ class WinController():
         self.db.alter("planes", to_bind_plane, "IsBinded", 1)
         self.db.alter("crews", to_bind_crew, "IsOccupied", 1)
         self.db.occupy_crew(to_bind_crew)
+
+    def edit_flight_window(self, flight_model : FlightModel):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = EditFlightFrame(self.temporary_window, self, flight_model)
+        self.temporary_window_frame.create_widgets(self)
+
+    def edit_flight(self):
+        model = self.temporary_window_frame.model
+        self.release_from_flight_by_id(model.id)
+        _plane = self.temporary_window_frame.dropdown_planes.get()
+        _datestart = self.temporary_window_frame.date_start_entry.get()
+        _dateend = self.temporary_window_frame.date_end_entry.get()
+        _direction = self.temporary_window_frame.dropdown_directions.get()
+        _crew = self.temporary_window_frame.dropdown_crews.get()
+        to_bind_plane = _plane.split(" ")[0]
+        to_bind_crew = _crew.split(" ")[0]
+        to_bind_direction = _direction.split(" ")[0]
+        # flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
+        self.db.alter("flights", model.id, "PlaneID", to_bind_plane)
+        self.db.alter("flights", model.id, "DateStart", _datestart)
+        self.db.alter("flights", model.id, "DateEnd", _dateend)
+        self.db.alter("flights", model.id, "DirectionID", to_bind_direction)
+        self.db.alter("flights", model.id, "CrewID", to_bind_crew)
+
+        self.occupy_for_flight(to_bind_plane, to_bind_crew)
+
+        self.temporary_window.destroy()
+        self.refresh()
+
 
     #       <--------FLIGHTS---------->
 
