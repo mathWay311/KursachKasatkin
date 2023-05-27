@@ -3,6 +3,9 @@ from frames.pilot_frame import PilotFrame
 from frames.test_frame import TestFrame
 from frames.admin_frame import AdminFrame
 from frames.flight_manager_frame import FlightManagerFrame
+from frames.plane_manager_frame import PlaneManagerFrame
+from frames.crew_manager_frame import CrewManagerFrame
+
 
 from frames.utility.direction import Direction
 import database.DBEngine as db
@@ -38,6 +41,8 @@ class WinController():
             "PilotFrame": "Окно пилота",
             "AdminFrame": "Администратор",
             "FlightManagerFrame": "Менеджер Рейсов",
+            "CrewManagerFrame": "Менеджер ЛС",
+            "PlaneManagerFrame": "Менеджер ВС",
             "TestFrame": "Debug"
         }
 
@@ -142,7 +147,38 @@ class WinController():
 
     def refresh(self):
         self.db.refresh_current_flight_state()
-        self.populate_panel_with_content(self.current_content)
+        if not self.role == "pilot":
+            self.populate_panel_with_content(self.current_content)
+        else:
+            self.show_status_to_pilot()
+
+
+    def show_status_to_pilot(self):
+        crews = self.db.get_all_from("crews")
+        for crew in crews:
+            ids = crew.pilotstring + crew.stuardstring
+            ids = ids.split("|")
+            ids.pop(-1)
+            found = False
+
+            for id in ids:
+                id = id.split(" ")[0]
+                user = self.db.search_model("users", "CrewmemberID", str(id))
+                if user:
+                    print(str(self.id_user) + "|" + str(user.id)+ "|")
+                    if str(self.id_user) == str(user.id):
+                        print("debug: found")
+                        found = True
+
+            if found:
+                print("debug: found 2")
+                flight_model = self.db.search_model("flights", "CrewID", crew.id)
+                if flight_model:
+                    plane = self.db.search_model("planes", "ID", str(flight_model.planeID))
+                    dir = self.db.search_model("directions", "ID", str(flight_model.directionID))
+                    self.showed_frame.info_label.configure(text = "Вы назначены на рейс\n" + dir.from_ + "-" + dir.to_ + "\nСамолёт:" + plane.brand + " " + plane.model + "\nВылет:" + flight_model.date_start + "\nПрилёт: " + flight_model.date_end)
+                    return
+        self.showed_frame.info_label.configure(text = "Пока нет назначений")
 
 
     def open_add_record_window(self):
@@ -275,7 +311,7 @@ class WinController():
         if not response.fail:
             self.switch_to_frame(response.frame())
             self.showed_frame.label_name.configure(text = response.full_name)
-            self.id = response.id
+            self.id_user = response.id
             self.role = response.role
         else:
             messagebox.showerror("Ошибка","Такого пользователя не существует, или пароль неверный")
@@ -404,6 +440,7 @@ class WinController():
 
         _login = self.temporary_window_frame.entry_login.get()
         _password = self.temporary_window_frame.entry_password.get()
+
         self.db.add_user(UserModel([-1, _login, _password, "pilot", _full_name, _info, id]))
 
         self.refresh()

@@ -72,7 +72,6 @@ class Table:
         search_string = str(search_string)
         for line in file.readlines():
             args = line.split(";")
-            print(args)
             search_index = self.column_config.index(column)
             if args[search_index] == search_string:
                 file.close()
@@ -205,7 +204,7 @@ crews_table.column_config = ["ID", "Name", "PilotString" ,"StuardString", "IsOcc
 #   <--------Tables Declaration--------->
 
 class Response:
-    frame_codes = {101: "AdminFrame", 102 : "FlightManagerFrame", 400: ""}
+    frame_codes = {101: "AdminFrame", 102 : "FlightManagerFrame", 103: "PlaneManagerFrame", 104: "CrewManagerFrame", 105: "PilotFrame",400: ""}
 
     def __init__(self, code, full_name = "", id = "", role = ""):
         self.code = code
@@ -265,6 +264,18 @@ class DB:
                     return Response(101, line[self.tables["users"].column_config.index("FullName")], line[self.tables["users"].column_config.index("ID")], line[self.tables["users"].column_config.index("Role")] )
                 if line[self.tables["users"].column_config.index("Role")] == "flight_manager":
                     return Response(102, line[self.tables["users"].column_config.index("FullName")],
+                                    line[self.tables["users"].column_config.index("ID")],
+                                    line[self.tables["users"].column_config.index("Role")])
+                if line[self.tables["users"].column_config.index("Role")] == "plane_manager":
+                    return Response(103, line[self.tables["users"].column_config.index("FullName")],
+                                    line[self.tables["users"].column_config.index("ID")],
+                                    line[self.tables["users"].column_config.index("Role")])
+                if line[self.tables["users"].column_config.index("Role")] == "crew_manager":
+                    return Response(104, line[self.tables["users"].column_config.index("FullName")],
+                                    line[self.tables["users"].column_config.index("ID")],
+                                    line[self.tables["users"].column_config.index("Role")])
+                if line[self.tables["users"].column_config.index("Role")] == "pilot":
+                    return Response(105, line[self.tables["users"].column_config.index("FullName")],
                                     line[self.tables["users"].column_config.index("ID")],
                                     line[self.tables["users"].column_config.index("Role")])
             else:
@@ -366,7 +377,7 @@ class DB:
         if result:
             messagebox.showerror("Ошибка на стороне БД!", "Логин уже существует")
         else:
-            self.tables["users"].add_record(user_model.login + ";" + user_model.password + ";" + "pilot" + ";" + user_model.full_name + ";" + user_model.info + ";" + str(user_model.id) + ";")
+            self.tables["users"].add_record(user_model.login + ";" + user_model.password + ";" + "pilot" + ";" + user_model.full_name + ";" + user_model.info + ";" + str(user_model.crewID) + ";")
 
 
     def refresh_current_flight_state(self):

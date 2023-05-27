@@ -8,7 +8,7 @@ BUTTON_RELX = 0.33
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
 
-class PilotFrame(BaseFrame):
+class PlaneManagerFrame(BaseFrame):
     def create_widgets(self, controller):
         #   <--------BACKGROUND---------->
         background_image = tk.CTkImage(dark_image=Image.open("images/bg.jpg"), size=(2000, 2000))
@@ -34,6 +34,13 @@ class PilotFrame(BaseFrame):
 
         #   <--------SELPANEL---------->
 
+        self.upper_select_panel = tk.CTkFrame(self, height=50, border_width=1, corner_radius=0)
+        # self.left_select_panel.place(rely=0.2, relx=0)
+        self.upper_select_panel.pack(side=tk.TOP, fill=tk.X, anchor=tk.N)
+
+
+
+
 
         #   <--------SELPANEL---------->
 
@@ -41,23 +48,28 @@ class PilotFrame(BaseFrame):
         self.upper_panel = tk.CTkFrame(self, height=50, fg_color="#6FB1DE", corner_radius=0)
         self.upper_panel.pack(side=tk.TOP, fill=tk.X, expand=0)
 
+        self.button_create_new = tk.CTkButton(self.upper_panel, text="+", fg_color="#5A97C0", font=("Roboto", 20),
+                                              corner_radius=50, text_color="#FFFFFF", width=40, height=40,
+                                              command=lambda: controller.open_add_record_window())
+        self.button_create_new.pack(side=tk.LEFT)
 
         self.button_refresh = tk.CTkButton(self.upper_panel, text="Обновить", fg_color="#6FB1DE", font=("Roboto", 20),
                                            corner_radius=0, text_color="#FFFFFF", width=40, height=40,
                                            command=lambda: controller.refresh())
         self.button_refresh.place(relx=0.5, relheight=1)
 
+        self.field_find = tk.CTkEntry(self.upper_panel)
+        self.field_find.pack(side=tk.RIGHT)
 
         #       <--------FIND AND ADD UPPER PANEL---------->
 
         #   <--------CONTENT PANEL---------->
-        self.content_panel = tk.CTkFrame(self)
-        self.content_panel.pack(expand = 1, fill = tk.BOTH, padx = 30, pady = 30)
-
-        self.info_label = tk.CTkLabel(self.content_panel, text = "Нет информации о назначениях")
-        self.info_label.pack(pady = 20)
+        self.content_panel = ScrollableFrame(self)
+        self.content_panel.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
         # self.content_panel.pack()
 
+        self.controller.current_content = "planes"
+        self.controller.populate_panel_with_content("planes")
 
         self.place(relwidth=1, relheight=1)
 
