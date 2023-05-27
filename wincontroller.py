@@ -458,6 +458,51 @@ class WinController():
             if not model.isOccupied:
                 output.append(model)
         return output
+
+    def edit_crew_window(self, crew_model : CrewModel):
+        self.temporary_window = tk.CTkToplevel(self.root)
+        self.temporary_window.geometry("1000x800")
+        self.temporary_window_frame = EditCrewFrame(self.temporary_window, self, crew_model)
+        self.temporary_window_frame.create_widgets(self)
+#["ID", "Name", "PilotString" ,"StuardString", "IsOccupied"]
+    def edit_crew(self):
+        model = self.temporary_window_frame.model
+        _name = self.temporary_window_frame.name_entry.get()
+        _pilots = self.temporary_window_frame.list_of_pilots.get("1.0", tk.END).strip().split("\n")
+        _stuards = self.temporary_window_frame.list_of_stuards.get("1.0", tk.END).strip().split("\n")
+        to_bind_ids = []
+        pilot_string = ""
+        for pilot in _pilots:
+            pilot_string += pilot + "|"
+            to_bind_ids.append(pilot.split(" ")[0])
+        stuard_string = ""
+
+        for stuard in _stuards:
+            if len(stuard.strip()) != 0:
+                stuard_string += stuard + "|"
+                to_bind_ids.append(stuard.split(" ")[0])
+
+        unbind_ids = (model.pilotstring + model.stuardstring).split("|")
+        unbind_ids.pop(-1)
+        print(unbind_ids)
+        print(to_bind_ids)
+
+        for id in unbind_ids:
+            print(id)
+            id = id.split(" ")[0]
+
+            self.db.alter("crewmembers", str(id), "IsBindedToCrew", 0)
+        for id in to_bind_ids:
+            self.db.alter("crewmembers", str(id), "IsBindedToCrew", 1)
+
+        self.db.alter("crews", str(model.id), "Name", _name)
+        self.db.alter("crews", str(model.id), "PilotString", pilot_string)
+        self.db.alter("crews", str(model.id), "StuardString", stuard_string)
+
+
+        self.temporary_window.destroy()
+        self.refresh()
+
     #       <--------CREWS---------->
 
     #       <--------FLIGHTS---------->

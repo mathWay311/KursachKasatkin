@@ -215,3 +215,143 @@ class EditCrewmemberFrame(BaseFrame):
         self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
         # TODO: Пререквизиты
+
+class EditCrewFrame(BaseFrame):
+    def __init__(self, root, controller, crew_model: CrewModel):
+        super().__init__(root, controller)
+        self.model = crew_model
+        self.root = root
+        self.controller = controller
+
+
+    def create_widgets(self, controller):
+        self.controller = controller
+
+        self.name_label = tk.CTkLabel(self, text="Наименование")
+        self.name_label.pack()
+
+        self.name_entry = tk.CTkEntry(self)
+        self.name_entry.insert(0, self.model.name)
+        self.name_entry.pack()
+
+        self.list_of_pilots_label = tk.CTkLabel(self, text="Список пилотов на рейсе")
+        self.list_of_pilots_label.pack()
+
+        pilots = self.model.pilotstring.split("|")
+        pilots.pop(-1)
+        pilot_string = ""
+        for pilot in pilots:
+            pilot_string += pilot + "\n"
+
+
+
+        self.list_of_pilots = tk.CTkTextbox(self, height=60)
+        self.list_of_pilots.insert("1.0", pilot_string)
+        self.list_of_pilots.configure(state = tk.DISABLED)
+        self.list_of_pilots.pack(fill=tk.X)
+
+        self.pilot_counter = len(self.list_of_pilots.get("1.0", tk.END).strip().split("\n"))
+
+        self.dropdown_crewmembers = tk.CTkComboBox(self, state="readonly")
+        self.dropdown_crewmembers.pack()
+
+        self.button_add_pilot = tk.CTkButton(self, text="Добавить пилота", command=lambda: self.add_pilot())
+        self.button_add_pilot.pack()
+        self.button_delete_pilot = tk.CTkButton(self, text="Очистить", command=lambda: self.delete_pilots())
+        self.button_delete_pilot.pack()
+
+        available_crewmembers = controller.get_available_crewmembers()
+        list_crewmembers_names = []
+        for crewmb in available_crewmembers:
+            if crewmb.type == "pilot":
+                list_crewmembers_names.append(str(crewmb.id) + " " + crewmb.full_name)
+
+        self.dropdown_crewmembers.configure(values=list_crewmembers_names)
+        if len(list_crewmembers_names):
+            self.dropdown_crewmembers.set(list_crewmembers_names[0])
+        else:
+            self.dropdown_crewmembers.set("")
+
+        self.label_stuard = tk.CTkLabel(self, text="Стюард(-ессы)")
+        self.label_stuard.pack()
+
+        stuards = self.model.stuardstring.split("|")
+        stuards.pop(-1)
+        stuard_string = ""
+        for stuard in stuards:
+            stuard_string += stuard + "\n"
+
+        self.list_of_stuards = tk.CTkTextbox(self, height=120)
+        self.list_of_stuards.insert("1.0", stuard_string)
+        self.list_of_stuards.configure(state = tk.DISABLED)
+        self.list_of_stuards.pack(fill=tk.X)
+
+        self.dropdown_stuards = tk.CTkComboBox(self, state="readonly")
+        self.dropdown_stuards.pack()
+
+        self.button_add_stuard = tk.CTkButton(self, text="Добавить стюарда", command=lambda: self.add_steward())
+        self.button_add_stuard.pack()
+        self.button_delete_stuards= tk.CTkButton(self, text="Очистить", command=lambda: self.delete_stuards())
+        self.button_delete_stuards.pack()
+        list_stuard_names = []
+        for crewmb in available_crewmembers:
+            if crewmb.type == "stuard":
+                list_stuard_names.append(str(crewmb.id) + " " + crewmb.full_name)
+
+        self.dropdown_stuards.configure(values=list_stuard_names)
+        if len(list_stuard_names):
+            self.dropdown_stuards.set(list_stuard_names[0])
+        else:
+            self.dropdown_stuards.set("")
+
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.edit_crew())
+        self.button_submit.pack(side=tk.RIGHT)
+
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3",
+                                          command=lambda: self.root.destroy())
+        self.button_cancel.pack(side=tk.LEFT)
+
+        self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
+
+    def add_pilot(self):
+        if self.list_of_pilots.get("1.0", tk.END).find(self.dropdown_crewmembers.get()) != -1:
+            messagebox.showerror("Ошибка", "Такой пилот уже добавлен")
+        else:
+            self.list_of_pilots.configure(state=tk.NORMAL)
+            self.list_of_pilots.insert("0.0", self.dropdown_crewmembers.get() + "\n")
+            self.list_of_pilots.configure(state=tk.DISABLED)
+            self.pilot_counter += 1
+
+    def add_steward(self):
+        if self.list_of_stuards.get("1.0", tk.END).find(self.dropdown_stuards.get()) != -1:
+            messagebox.showerror("Ошибка", "Такой стюард уже добавлен")
+        else:
+            self.list_of_stuards.configure(state=tk.NORMAL)
+            self.list_of_stuards.insert("0.0", self.dropdown_stuards.get() + "\n")
+            self.list_of_stuards.configure(state=tk.DISABLED)
+
+    def delete_pilots(self):
+        self.list_of_pilots.configure(state=tk.NORMAL)
+        self.list_of_pilots.delete("1.0", tk.END)
+        self.list_of_pilots.configure(state=tk.DISABLED)
+        self.pilot_counter = 0
+
+    def delete_stuards(self):
+        self.list_of_stuards.configure(state=tk.NORMAL)
+        self.list_of_stuards.delete("1.0", tk.END)
+        self.list_of_stuards.configure(state=tk.DISABLED)
+
+
+    def edit_crew(self):
+        if self.pilot_counter == 0:
+            messagebox.showerror("Ошибка", "Недопустимо создание пустого экипажа, добавьте хотя бы одного пилота!")
+        elif self.list_of_stuards.get("1.0", tk.END).strip() == "":
+            ans = messagebox.askokcancel("Внимание", "Вы оставляете экипаж без стюардов, вы уверены?")
+            if ans:
+                self.controller.edit_crew()
+        elif self.pilot_counter == 1:
+            ans = messagebox.askokcancel("Внимание", "Вы оставляете экипаж с одним пилотом, вы уверены?")
+            if ans:
+                self.controller.edit_crew()
+        else:
+            self.controller.edit_crew()
