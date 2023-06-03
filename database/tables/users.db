@@ -4,7 +4,7 @@
 4;stub3;12;pilot;Валерий 2345;LOH\\n;-1;
 5;flight;123;flight_manager;Кожугет Кожуget() Кожуset()вич;Описание менеджера рейсов;-1;
 6;plane;123;plane_manager;Касаткин Мамаааааааааааааа;Описание менеджера ВС \\n\\n;-1;
-7;TESTCHEL;66743;pilot;Тестовый Чел Челович;Н\\n\\n\\n;-1;
+7;TESTCHEL;6674;pilot;Тестовый Чел Челович;Н\\n\\n\\n\\n;-1;
 8;test2;pass;pilot;Тест Логинов Паролей;ПРИ\\n;6;
 9;;;pilot;;\\n;-1;
 10;;;pilot;;\\n;-1;
@@ -18,3 +18,4 @@
 18;asas;asas;pilot;asas;\\n;-1;
 19;sas;sas;pilot;sas;\\n;14;
 20;now;now;pilot;Тест Сейчас;\\n;15;
+21;pilot3;123;pilot;pilot pilot pilot;\\n;17;
