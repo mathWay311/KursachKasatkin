@@ -2,14 +2,14 @@ import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
 from database.models.models import *
-
+from main import WINDOW_WIDTH
 
 class User():
     def __init__(self, user_model : UserModel, controller, parent_frame):
         self.user_model = user_model
 
 
-        dir_rect = tk.CTkFrame(parent_frame, height=80, width=1600,
+        dir_rect = tk.CTkFrame(parent_frame, height=80, width=WINDOW_WIDTH,
                                fg_color="#6FB1DE")
 
 

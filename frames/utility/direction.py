@@ -1,12 +1,12 @@
 import customtkinter as tk
 from frame import BaseFrame
 from database.models.models import *
-
+from main import WINDOW_WIDTH
 class Direction():
     def __init__(self, dir_model : DirectionModel, controller, parent_frame):
         self.model = dir_model
         self.id = self.model.id
-        dir_rect = tk.CTkFrame(parent_frame, height=80, width=1600,
+        dir_rect = tk.CTkFrame(parent_frame, height=80, width=WINDOW_WIDTH,
                                fg_color="#6FB1DE")
         label = tk.CTkLabel(dir_rect, text=self.model.from_ + " - " + self.model.to_, font=("Roboto", 26))
         button_edit = tk.CTkButton(dir_rect, text="Редактировать", fg_color="#FFD37C", font=("Roboto", 16), text_color="#FFFFFF",

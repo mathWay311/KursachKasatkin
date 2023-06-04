@@ -2,14 +2,15 @@ import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
 from database.models.models import PlaneModel
-
+from main import WINDOW_WIDTH
+from frames.utility.get_image import get_image
 class Plane():
     def __init__(self, plane_model: PlaneModel ,controller, parent_frame):
         self.model = plane_model
+        path_string = "database/images/" + self.model.imgPath
+        plane_logo_img = get_image(path_string, (300,300))
 
-        plane_logo_img = tk.CTkImage(dark_image=Image.open("database/images/" + self.model.imgPath), size=(300, 300))
-
-        dir_rect = tk.CTkFrame(parent_frame, height=300, width=1600,
+        dir_rect = tk.CTkFrame(parent_frame, height=300, width=WINDOW_WIDTH,
                                fg_color="#6FB1DE")
 
         if self.model.isFlying:

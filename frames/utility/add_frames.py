@@ -18,7 +18,7 @@ class AddDirectionFrame(BaseFrame):
         self.entry_to = tk.CTkEntry(self)
         self.entry_to.pack()
 
-        self.button_submit = tk.CTkButton(self,text="Создать", command= lambda:controller.add_direction())
+        self.button_submit = tk.CTkButton(self,text="Создать", command= lambda:self.on_create_check())
         self.button_submit.pack(side = tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda : self.root.destroy())
@@ -26,6 +26,11 @@ class AddDirectionFrame(BaseFrame):
 
         self.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
 
+    def on_create_check(self):
+        if len(self.entry_from.get().strip()) == 0 or len(self.entry_to.get().strip()) == 0:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.add_direction()
 class AddUserFrame(BaseFrame):
     def create_widgets(self, controller):
         self.controller = controller
@@ -55,6 +60,7 @@ class AddUserFrame(BaseFrame):
 
         self.dropdown_roles = tk.CTkOptionMenu(self)
         self.dropdown_roles.configure(values=["Администратор", "Менеджер Рейсов", "Менеджер ЛС", "Менеджер ВС", "Пилот/Стюардесса"])
+        self.dropdown_roles.set("Пилот/Стюардесса")
         self.dropdown_roles.pack()
 
         self.label_info = tk.CTkLabel(self, text="Доп. информация")
@@ -75,7 +81,17 @@ class AddUserFrame(BaseFrame):
     def add_prerequisites(self):
         if self.dropdown_roles.get() == "Пилот/Стюардесса":
             messagebox.showwarning("Предупреждение!", "Создание пилота/стюардессы вне окна ЛС допустимо только в случае утраты пользовательских данных уже существующего члена ЛС.")
-        self.controller.add_user()
+
+        fullname_empty = len(self.entry_full_name.get().strip()) == 0
+        entry_login_empty = len(self.entry_login.get().strip()) == 0
+        entry_password_empty = len(self.entry_password.get().strip()) == 0
+        dropdown_roles_empty = len(self.dropdown_roles.get().strip()) == 0
+
+
+        if fullname_empty or entry_login_empty or entry_password_empty or dropdown_roles_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.add_user()
 
 class AddCrewMemberFrame(BaseFrame):
     def create_widgets(self, controller):
@@ -85,6 +101,7 @@ class AddCrewMemberFrame(BaseFrame):
         self.dropdown_types = tk.CTkOptionMenu(self)
         self.dropdown_types.configure(
             values=["Пилот", "Стюардесса"])
+        self.dropdown_types.set("Пилот")
         self.dropdown_types.pack()
 
         self.label_full_name = tk.CTkLabel(self, text="ФИО")
@@ -123,14 +140,23 @@ class AddCrewMemberFrame(BaseFrame):
         self.entry_password = tk.CTkEntry(self)
         self.entry_password.pack()
 
-        self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: controller.add_crewmember())
+        self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: self.add_prerequesite())
         self.button_submit.pack(side=tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
         self.button_cancel.pack(side=tk.LEFT)
 
         self.pack(side = tk.TOP,expand = 1, fill= tk.BOTH)
+    def add_prerequesite(self):
+        fullname_empty = len(self.entry_full_name.get().strip()) == 0
+        entry_login_empty = len(self.entry_login.get().strip()) == 0
+        entry_password_empty = len(self.entry_password.get().strip()) == 0
+        flytype_empty = len(self.entry_flytype.get().strip()) == 0
 
+        if fullname_empty or entry_login_empty or entry_password_empty or flytype_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.add_crewmember()
 
 class AddPlaneFrame(BaseFrame):
     def create_widgets(self, controller):
@@ -139,12 +165,14 @@ class AddPlaneFrame(BaseFrame):
 
         self.dropdown_brand = tk.CTkOptionMenu(self)
         self.dropdown_brand.configure(values=["Boeing", "Ту", "Airbus"], command=self.optionmenu_callback)
+        self.dropdown_brand.set("Boeing")
         self.dropdown_brand.pack()
 
         self.label_type = tk.CTkLabel(self, text="Тип")
         self.label_type.pack()
 
         self.dropdown_type = tk.CTkOptionMenu(self)
+        self.dropdown_type.set("737-800")
         self.dropdown_type .pack()
 
         self.label_boardnum = tk.CTkLabel(self, text="Бортовой номер")
@@ -159,7 +187,7 @@ class AddPlaneFrame(BaseFrame):
         self.entry_picpath = tk.CTkEntry(self)
         self.entry_picpath.pack()
 
-        self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: controller.add_plane())
+        self.button_submit = tk.CTkButton(self, text="Создать", command=lambda: self.add_prerequesite())
         self.button_submit.pack(side=tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
@@ -174,6 +202,13 @@ class AddPlaneFrame(BaseFrame):
             self.dropdown_type.configure(values=["154Б", "154М", "134"])
         if choice == "Airbus":
             self.dropdown_type.configure(values=["A320", "A320neo", "A380"])
+
+    def add_prerequesite(self):
+        boardnum_empty = len(self.entry_boardnum.get().strip()) == 0
+        if boardnum_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.add_plane()
 
 
 class AddCrewFrame(BaseFrame):
@@ -362,10 +397,22 @@ class AddFlightFrame(BaseFrame):
         self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
     def add_flight(self):
-        if self.__check_time():
-            self.controller.add_flight()
-        else:
+        time = self.__check_time()
+        fields = self.__check_dropdowns()
+        if not time:
             messagebox.showerror("Рейс не создан", "Произошла ошибка при введении времени. Рейс не будет создан.")
+        if time and fields:
+            self.controller.add_flight()
+
+    def __check_dropdowns(self):
+        dir_empty = len(self.dropdown_directions.get().strip()) == 0
+        plane_empty = len(self.dropdown_planes.get().strip()) == 0
+        crew_empty = len(self.dropdown_crews.get().strip()) == 0
+        if dir_empty or plane_empty or crew_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+            return False
+        else:
+            return True
 
     def __check_time(self):
         date_start_str = self.date_start_entry.get()

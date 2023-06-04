@@ -6,6 +6,7 @@ from PIL import Image
 from database.models import *
 from tkinter import messagebox
 
+from frames.utility.get_image import get_image
 
 
 def convert_from_plain(text):
@@ -18,7 +19,8 @@ class PlaneDetail():
 
     def create_widgets(self, root, controller):
         self.controller = controller
-        plane_logo_img = tk.CTkImage(dark_image=Image.open("database/images/" + self.plane_model.imgPath), size=(300, 300))
+        path_string = "database/images/" + self.plane_model.imgPath
+        plane_logo_img = get_image(path_string, (300,300))
         plane_logo = tk.CTkLabel(root, image=plane_logo_img, text="")
         plane_logo.place(x = 30)
 
@@ -44,7 +46,7 @@ class PlaneDetail():
             self.button_place_on_repair = tk.CTkButton(root, text="Отправить на ремонт", command=lambda: controller.place_plane_on_repair(self.plane_model.id))
             self.button_place_on_repair.place(x=30, y= 680)
         self.button_delete = tk.CTkButton(root, text="Удалить самолёт", command=lambda: self.delete_prerequesite(), fg_color="#FF7CA3")
-        self.button_delete.place(x=30,y=750)
+        self.button_delete.place(x=180,y=680)
 
         label_info.place(x = 30, y = 350)
 
@@ -66,8 +68,8 @@ class CrewmemberDetail():
 
     def create_widgets(self, root, controller):
         self.controller = controller
-
-        crewmember_logo_img = tk.CTkImage(dark_image=Image.open("database/images/" + self.crewmember_model.imagePath), size=(300, 300))
+        path_string = "database/images/" + self.crewmember_model.imagePath
+        crewmember_logo_img = get_image(path_string, (300, 300))
         crewmember_logo = tk.CTkLabel(root, image=crewmember_logo_img, text="")
         crewmember_logo.place(x = 30)
 
@@ -97,7 +99,7 @@ class CrewmemberDetail():
             if crewmb.id == self.crewmember_model.id:
                 can_delete = True
         if can_delete:
-            self.controller.delete_item_by_id("crewmembers", self.crewmember_model.id)
+            self.controller.delete_crewmember(self.crewmember_model)
         else:
             messagebox.showerror("Ошибка", "Вы пытаетесь удалить лётчика/стюарда, который сейчас не свободен.\nДождитесь окончания всех рейсов этого пользователя, затем открепите его от экипажа и только потом удалите.")
 

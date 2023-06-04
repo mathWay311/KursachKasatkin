@@ -119,10 +119,23 @@ class WinController():
                 self.release_from_flight_by_id(id)
             if table_name == "crews":
                 self.db.release_bind(id)
-
             self.db.delete_by_id(table_name, id)
             self.temporary_window.destroy()
             self.refresh()
+
+    def delete_crewmember(self, model : CrewmemberModel):
+        """
+        Удаляет члена лётного состава из базы, удаляя аккаунт
+        Args:
+            model: Модель получаемая из представления
+
+        Returns:
+
+        """
+        user = self.db.search_model("users", "CrewmemberID", model.id)
+        if user:
+            self.db.delete_by_id("users", user.id)
+        self.delete_item_by_id("crewmembers", model.id)
 
 
     def delete_by_id(self, table, id):
@@ -435,14 +448,16 @@ class WinController():
         _info = self.temporary_window_frame.info_entry_field.get("1.0", tk.END)
         _picpath = self.temporary_window_frame.entry_picpath.get()
         _fly_type = self.temporary_window_frame.entry_flytype.get()
-        id = self.db.add_record("crewmembers",
-                           _type + ";" + _full_name + ";" + _info + ";-1;0;0;-1;" + _picpath + ";" + _fly_type + ";0;0;")
-
         _login = self.temporary_window_frame.entry_login.get()
         _password = self.temporary_window_frame.entry_password.get()
 
-        self.db.add_user(UserModel([-1, _login, _password, "pilot", _full_name, _info, id]))
+        if self.db.is_login_available(_login):
+            id = self.db.add_record("crewmembers",
+                               _type + ";" + _full_name + ";" + _info + ";-1;0;0;-1;" + _picpath + ";" + _fly_type + ";0;0;")
 
+            self.db.add_user(UserModel([-1, _login, _password, "pilot", _full_name, _info, id]))
+        else:
+            messagebox.showerror("Ошибка", "Такой логин уже существует")
         self.refresh()
 
     def edit_crewmember_window(self, crewmb_model : CrewmemberModel):
@@ -504,14 +519,17 @@ class WinController():
         _role = self.roles_dict[role_text]
         _full_name = self.temporary_window_frame.entry_full_name.get()
         _info = self.temporary_window_frame.info_entry_field.get("1.0", tk.END)
-        self.db.alter("users", model.id, "Login", _login)
-        self.db.alter("users", model.id, "Password", _password)
-        self.db.alter("users", model.id, "Role", _role)
-        self.db.alter("users", model.id, "FullName", _full_name)
-        self.db.alter("users", model.id, "Info", _info)
 
-        self.temporary_window.destroy()
-        self.refresh()
+        if self.db.is_login_available(_login) or _login == model.login:
+            self.db.alter("users", model.id, "Login", _login)
+            self.db.alter("users", model.id, "Password", _password)
+            self.db.alter("users", model.id, "Role", _role)
+            self.db.alter("users", model.id, "FullName", _full_name)
+            self.db.alter("users", model.id, "Info", _info)
+            self.temporary_window.destroy()
+            self.refresh()
+        else:
+            messagebox.showerror("Ошибка", "Такой логин уже существует")
 
     #       <--------USERS---------->
 

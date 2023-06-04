@@ -2,13 +2,13 @@ import customtkinter as tk
 from frame import BaseFrame
 from PIL import Image
 from database.models.models import CrewModel
+from main import WINDOW_WIDTH
 
 class Crew():
     def __init__(self, crew_model : CrewModel, controller, parent_frame):
         self.model = crew_model
 
-
-        dir_rect = tk.CTkFrame(parent_frame, height=100, width=1600,
+        dir_rect = tk.CTkFrame(parent_frame, height=100, width=WINDOW_WIDTH,
                                fg_color="#6FB1DE")
 
 

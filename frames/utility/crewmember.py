@@ -1,15 +1,18 @@
 import customtkinter as tk
 from frame import BaseFrame
-from PIL import Image
+
 from database.models.models import CrewmemberModel
+from main import WINDOW_WIDTH
+from frames.utility.get_image import *
 
 class Crewmember():
     def __init__(self, crewmember_model : CrewmemberModel ,controller, parent_frame):
         self.model= crewmember_model
 
-        crewmember_logo_img = tk.CTkImage(dark_image=Image.open("database/images/" + self.model.imagePath), size=(200, 200))
+        path_string = "database/images/" + self.model.imagePath
+        crewmember_logo_img = get_image(path_string, (200, 200))
 
-        dir_rect = tk.CTkFrame(parent_frame, height=200, width=1600,
+        dir_rect = tk.CTkFrame(parent_frame, height=200, width=WINDOW_WIDTH,
                                fg_color="#6FB1DE")
 
         if self.model.isOccupied:

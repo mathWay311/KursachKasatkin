@@ -5,6 +5,11 @@ from frame import BaseFrame
 from tkinter import messagebox
 from database.models.models import *
 
+def convert_from_plain(text):
+    text = text.replace(r"\\n", "\n")
+    return text
+
+
 class EditDirectionFrame(BaseFrame):
     def __init__(self, root, controller, dir_model:DirectionModel):
         super().__init__(root, controller)
@@ -13,28 +18,32 @@ class EditDirectionFrame(BaseFrame):
         self.controller = controller
 
     def create_widgets(self, controller):
-        self.label_from = tk.CTkLabel(self.root, text = "Откуда: ")
+        self.label_from = tk.CTkLabel(self, text = "Откуда: ")
         self.label_from.pack()
 
-        self.entry_from = tk.CTkEntry(self.root)
+        self.entry_from = tk.CTkEntry(self)
         self.entry_from.insert(0, self.model.from_)
         self.entry_from.pack()
 
-        self.label_to = tk.CTkLabel(self.root, text="Куда: ")
+        self.label_to = tk.CTkLabel(self, text="Куда: ")
         self.label_to.pack()
 
-        self.entry_to = tk.CTkEntry(self.root)
+        self.entry_to = tk.CTkEntry(self)
         self.entry_to.insert(0, self.model.to_)
         self.entry_to.pack()
 
-        self.button_submit = tk.CTkButton(self.root,text="Изменить", command= lambda: self.controller.edit_direction())
+        self.button_submit = tk.CTkButton(self,text="Изменить", command= lambda: self.on_edit_check())
         self.button_submit.pack(side = tk.RIGHT)
 
-        self.button_cancel = tk.CTkButton(self.root, text="Отмена", fg_color="#FF7CA3", command=lambda : self.root.destroy())
+        self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda : self.root.destroy())
         self.button_cancel.pack(side=tk.LEFT)
 
         self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
-
+    def on_edit_check(self):
+        if len(self.entry_from.get().strip()) == 0 or len(self.entry_to.get().strip()) == 0:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.edit_direction()
 class EditUserFrame(BaseFrame):
     def __init__(self, root, controller, dir_model:UserModel):
         super().__init__(root, controller)
@@ -84,10 +93,10 @@ class EditUserFrame(BaseFrame):
         self.label_info.pack()
 
         self.info_entry_field = tk.CTkTextbox(self, width=500, height=100)
-        self.info_entry_field.insert("1.0", self.model.info)
+        self.info_entry_field.insert("1.0", convert_from_plain(self.model.info))
         self.info_entry_field.pack()
 
-        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.controller.edit_user() )
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.edit_prerequesite() )
         self.button_submit.pack(side=tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
@@ -96,12 +105,17 @@ class EditUserFrame(BaseFrame):
         self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
     def edit_prerequesite(self):
-        """
-        TODO: Ограничения для изменения юзеров крашило код, поэтому в пизду пока.
 
-        Returns:
+        fullname_empty = len(self.entry_full_name.get().strip()) == 0
+        entry_login_empty = len(self.entry_login2.get().strip()) == 0
+        entry_password_empty = len(self.entry_password.get().strip()) == 0
+        dropdown_roles_empty = len(self.dropdown_roles.get().strip()) == 0
 
-        """
+
+        if fullname_empty or entry_login_empty or entry_password_empty or dropdown_roles_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.edit_user()
 
 class EditPlaneFrame(BaseFrame):
     def __init__(self, root, controller, plane_model: PlaneModel):
@@ -142,7 +156,7 @@ class EditPlaneFrame(BaseFrame):
         self.entry_picpath.insert(0, self.model.imgPath)
         self.entry_picpath.pack()
 
-        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: controller.edit_plane())
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.edit_prerequesite())
         self.button_submit.pack(side=tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
@@ -157,6 +171,14 @@ class EditPlaneFrame(BaseFrame):
             self.dropdown_type.configure(values=["154Б", "154М", "134"])
         if choice == "Airbus":
             self.dropdown_type.configure(values=["A320", "A320neo", "A380"])
+
+    def edit_prerequesite(self):
+        boardnum_empty = len(self.entry_boardnum.get().strip()) == 0
+        if boardnum_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.edit_plane()
+
 
 class EditCrewmemberFrame(BaseFrame):
     def __init__(self, root, controller, crewmember_model: CrewmemberModel):
@@ -189,7 +211,7 @@ class EditCrewmemberFrame(BaseFrame):
         self.label_info.pack()
 
         self.info_entry_field = tk.CTkTextbox(self, width=500, height=100)
-        self.info_entry_field.insert("1.0", self.model.info)
+        self.info_entry_field.insert("1.0", convert_from_plain(self.model.info))
         self.info_entry_field.pack()
 
         self.label_pic = tk.CTkLabel(self, text="Путь до картинки в базе")
@@ -206,7 +228,7 @@ class EditCrewmemberFrame(BaseFrame):
         self.entry_flytype.insert(0, self.model.fliesType)
         self.entry_flytype.pack()
 
-        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: controller.edit_crewmember())
+        self.button_submit = tk.CTkButton(self, text="Изменить", command=lambda: self.edit_prerequesite())
         self.button_submit.pack(side=tk.RIGHT)
 
         self.button_cancel = tk.CTkButton(self, text="Отмена", fg_color="#FF7CA3", command=lambda: self.root.destroy())
@@ -214,7 +236,14 @@ class EditCrewmemberFrame(BaseFrame):
 
         self.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
-        # TODO: Пререквизиты
+    def edit_prerequesite(self):
+        fullname_empty = len(self.entry_full_name.get().strip()) == 0
+        flytype_empty = len(self.entry_flytype.get().strip()) == 0
+
+        if fullname_empty or flytype_empty:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
+        else:
+            self.controller.edit_crewmember()
 
 class EditCrewFrame(BaseFrame):
     def __init__(self, root, controller, crew_model: CrewModel):
@@ -353,6 +382,8 @@ class EditCrewFrame(BaseFrame):
             ans = messagebox.askokcancel("Внимание", "Вы оставляете экипаж с одним пилотом, вы уверены?")
             if ans:
                 self.controller.edit_crew()
+        elif len(self.name_entry.get().strip()) == 0:
+            messagebox.showerror("Ошибка", "Поле не может быть пустым")
         else:
             self.controller.edit_crew()
 

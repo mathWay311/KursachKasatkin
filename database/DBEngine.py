@@ -250,7 +250,6 @@ class DB:
 
     def is_login_available(self, login):
         answer = self.is_record_present("users", "Login", login)
-        self.is_record_present()
         if answer:
             return False
         else:
@@ -371,14 +370,16 @@ class DB:
         self.alter("planes", str(plane_id), "IsFlying", 0)
         self.alter("planes", str(plane_id), "IsBinded", 0)
 
-    def add_user(self, user_model: UserModel):
+    def add_user(self, user_model: UserModel) -> bool:
         login = user_model.login
         result = self.tables["users"].search_model("Login", login)
         if result:
             messagebox.showerror("Ошибка на стороне БД!", "Логин уже существует")
+            return False
         else:
             self.tables["users"].add_record(user_model.login + ";" + user_model.password + ";" + "pilot" + ";" + user_model.full_name + ";" + user_model.info + ";" + str(user_model.crewID) + ";")
-
+            return True
+        return False
 
     def refresh_current_flight_state(self):
         """
