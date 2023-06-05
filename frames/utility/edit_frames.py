@@ -44,6 +44,8 @@ class EditDirectionFrame(BaseFrame):
             messagebox.showerror("Ошибка", "Поле не может быть пустым")
         else:
             self.controller.edit_direction()
+
+
 class EditUserFrame(BaseFrame):
     def __init__(self, root, controller, dir_model:UserModel):
         super().__init__(root, controller)

@@ -2,3 +2,5 @@
 1;admin;123;admin;Касаткин Матвей Вадимович;Описание Администратора\\n\\n;-1;
 2;test;test;pilot;Тестовый;\\n\\n\\n\\n;1;
 4;test2;test2;pilot;Пилот Тест 2;\\n\\n\\n\\n\\n\\n;3;
+5;flight;123;flight_manager;Рейс Рейсович;\\n;-1;
+6;plane;123;plane_manager;Самолёт Самолётович;\\n;-1;

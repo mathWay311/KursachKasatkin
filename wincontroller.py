@@ -355,10 +355,13 @@ class WinController():
         return output
 
     def edit_direction_window(self, direction_model):
-        self.temporary_window = tk.CTkToplevel(self.root)
-        self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = EditDirectionFrame(self.temporary_window, self, direction_model)
-        self.temporary_window_frame.create_widgets(self)
+        if self.auth_check(["admin"]):
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("1000x800")
+            self.temporary_window_frame = EditDirectionFrame(self.temporary_window, self, direction_model)
+            self.temporary_window_frame.create_widgets(self)
+        else:
+            messagebox.showerror("Ошибка", "Нет доступа")
 
     def edit_direction(self):
         model = self.temporary_window_frame.model
@@ -411,11 +414,13 @@ class WinController():
         return output
 
     def edit_plane_window(self, direction_model):
-        self.temporary_window = tk.CTkToplevel(self.root)
-        self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = EditPlaneFrame(self.temporary_window, self, direction_model)
-        self.temporary_window_frame.create_widgets(self)
-#["ID", "Brand", "Model", "BoardNum", "IsFlying", "IsRepaired", "Malfunction", "ImagePath", "IsBinded"]
+        if self.auth_check(["admin", "plane_manager"]):
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("1000x800")
+            self.temporary_window_frame = EditPlaneFrame(self.temporary_window, self, direction_model)
+            self.temporary_window_frame.create_widgets(self)
+        else:
+            messagebox.showerror("Ошибка", "Нет доступа")
     def edit_plane(self):
         model = self.temporary_window_frame.model
         _brand = self.temporary_window_frame.dropdown_brand.get()
@@ -461,10 +466,13 @@ class WinController():
         self.refresh()
 
     def edit_crewmember_window(self, crewmb_model : CrewmemberModel):
-        self.temporary_window = tk.CTkToplevel(self.root)
-        self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = EditCrewmemberFrame(self.temporary_window, self, crewmb_model)
-        self.temporary_window_frame.create_widgets(self)
+        if self.auth_check(["admin", "crew_manager"]):
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("1000x800")
+            self.temporary_window_frame = EditCrewmemberFrame(self.temporary_window, self, crewmb_model)
+            self.temporary_window_frame.create_widgets(self)
+        else:
+            messagebox.showerror("Ошибка", "Нет доступа")
 
 
     def edit_crewmember(self):
@@ -506,10 +514,13 @@ class WinController():
         self.refresh()
 
     def edit_user_window(self, user_model : UserModel):
-        self.temporary_window = tk.CTkToplevel(self.root)
-        self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = EditUserFrame(self.temporary_window, self, user_model)
-        self.temporary_window_frame.create_widgets(self)
+        if self.auth_check(["admin"]):
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("1000x800")
+            self.temporary_window_frame = EditUserFrame(self.temporary_window, self, user_model)
+            self.temporary_window_frame.create_widgets(self)
+        else:
+            messagebox.showerror("Ошибка", "Нет доступа")
 
     def edit_user(self):
         model = self.temporary_window_frame.model
@@ -579,11 +590,14 @@ class WinController():
         return output
 
     def edit_crew_window(self, crew_model : CrewModel):
-        self.temporary_window = tk.CTkToplevel(self.root)
-        self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = EditCrewFrame(self.temporary_window, self, crew_model)
-        self.temporary_window_frame.create_widgets(self)
-#["ID", "Name", "PilotString" ,"StuardString", "IsOccupied"]
+        if self.auth_check(["admin", "plane_manager"]):
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("1000x800")
+            self.temporary_window_frame = EditCrewFrame(self.temporary_window, self, crew_model)
+            self.temporary_window_frame.create_widgets(self)
+        else:
+            messagebox.showerror("Ошибка", "Нет доступа")
+
     def edit_crew(self):
         model = self.temporary_window_frame.model
         _name = self.temporary_window_frame.name_entry.get()
@@ -661,10 +675,13 @@ class WinController():
         self.db.occupy_crew(to_bind_crew)
 
     def edit_flight_window(self, flight_model : FlightModel):
-        self.temporary_window = tk.CTkToplevel(self.root)
-        self.temporary_window.geometry("1000x800")
-        self.temporary_window_frame = EditFlightFrame(self.temporary_window, self, flight_model)
-        self.temporary_window_frame.create_widgets(self)
+        if self.auth_check(["admin", "flight_manager"]):
+            self.temporary_window = tk.CTkToplevel(self.root)
+            self.temporary_window.geometry("1000x800")
+            self.temporary_window_frame = EditFlightFrame(self.temporary_window, self, flight_model)
+            self.temporary_window_frame.create_widgets(self)
+        else:
+            messagebox.showerror("Ошибка", "Нет доступа")
 
     def edit_flight(self):
         model = self.temporary_window_frame.model
