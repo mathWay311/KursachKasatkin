@@ -196,7 +196,7 @@ crewmembers_table = Table("crewmembers", "CrewmemberModel")
 crewmembers_table.column_config = ["ID", "Type" ,"FullName", "Info", "CrewID", "IsOccupied", "isRetired", "FlightID" , "ImagePath", "FliesType", "IsBindedToCrew", "IsInFlight"]
 
 flights_table = Table("flights", "FlightModel")
-flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID"]
+flights_table.column_config = ["ID", "PlaneID" ,"DateStart", "DateEnd", "DirectionID", "CrewID", "IsStarted"]
 
 crews_table = Table("crews", "CrewModel")
 crews_table.column_config = ["ID", "Name", "PilotString" ,"StuardString", "IsOccupied"]
@@ -418,6 +418,7 @@ class DB:
             if ((date_start - datetime.datetime.now()).total_seconds() <= 0) and not ((date_end - datetime.datetime.now()).total_seconds() <= 0):
                 self.start_crew_fly(flight.crewID)
                 self.start_plane_fly(flight.planeID)
+                self.alter("flights", str(flight.id), "IsStarted", 1)
                 messagebox.showinfo("Рейс", "Рейс начался")
 
             if ((date_end - datetime.datetime.now()).total_seconds() <= 0):

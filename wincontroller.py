@@ -649,7 +649,7 @@ class WinController():
         to_bind_crew = _crew.split(" ")[0]
         to_bind_direction = _direction.split(" ")[0]
 
-        self.db.add_record("flights", to_bind_plane + ";" + _datestart + ";" + _dateend + ";" + to_bind_direction + ";" + to_bind_crew + ";")
+        self.db.add_record("flights", to_bind_plane + ";" + _datestart + ";" + _dateend + ";" + to_bind_direction + ";" + to_bind_crew + ";0;" )
 
         self.occupy_for_flight(to_bind_plane, to_bind_crew)
 
@@ -675,7 +675,7 @@ class WinController():
         self.db.occupy_crew(to_bind_crew)
 
     def edit_flight_window(self, flight_model : FlightModel):
-        if self.auth_check(["admin", "flight_manager"]):
+        if self.auth_check(["admin", "flight_manager"]) and not flight_model.isStarted:
             self.temporary_window = tk.CTkToplevel(self.root)
             self.temporary_window.geometry("1000x800")
             self.temporary_window_frame = EditFlightFrame(self.temporary_window, self, flight_model)

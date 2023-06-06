@@ -11,6 +11,7 @@ class FlightModel(Model):
         self.date_end = line[3]
         self.directionID = int(line[4])
         self.crewID = int(line[5])
+        self.isStarted = bool(int(line[6]))
         #
         self.crewName = ""
         self.planeName = ""
